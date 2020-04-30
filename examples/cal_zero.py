@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# DEPRECATED: Use calibrate.py -e
+# DEPRECATED: Use calibrate_6022.py -e
 
 '''
 Program to calibrate offset of 6022BE/BL

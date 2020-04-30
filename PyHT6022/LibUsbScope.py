@@ -9,7 +9,7 @@ import libusb1
 import threading
 from struct import pack
 
-from PyHT6022.HantekFirmware import custom_firmware_BE, custom_firmware_BL, fx2_ihex_to_control_packets
+from PyHT6022.Firmware import dso6022be_firmware, dso6022bl_firmware, fx2_ihex_to_control_packets
 
 class Oscilloscope(object):
     FIRMWARE_VERSION = 0x0206
@@ -251,9 +251,9 @@ class Oscilloscope(object):
             assert self.open_handle()
         if not firmware: # called without an explicit firmware parameter
             if self.device.getProductID() == self.PRODUCT_ID_BE:
-                firmware = custom_firmware_BE
+                firmware = dso6022be_firmware
             elif self.device.getProductID() == self.PRODUCT_ID_BL:
-                firmware = custom_firmware_BL
+                firmware = dso6022bl_firmware
             else:
                 return False
         for packet in firmware:

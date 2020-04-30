@@ -3,7 +3,7 @@
 __author__ = 'Robert Cope'
 
 from PyHT6022.LibUsbScope import Oscilloscope
-from PyHT6022.HantekFirmware import mod_firmware_01
+from PyHT6022.Firmware import mod_firmware_01
 import time
 
 iterations = 50

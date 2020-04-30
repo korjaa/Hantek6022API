@@ -6,7 +6,7 @@
 
 from PyHT6022.LibUsbScope import Oscilloscope
 
-firmware = "firmware_BE.hex"
+firmware = "dso6022be_firmware.hex"
 VID=0x04b4
 PID=0x2020
 
@@ -14,4 +14,5 @@ scope = Oscilloscope( VID, PID )
 scope.setup()
 scope.open_handle()
 scope.flash_firmware_from_hex( firmware )
+print( "FW version", hex( scope.get_fw_version() ) )
 scope.close_handle()
