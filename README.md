@@ -19,20 +19,99 @@ Hantek 6022 Python API for Linux. This is a API for Python for the
 ultra-cheap, reasonably usable (and hackable) 6022 DSO, with a libusb implementation via libusb1 for Linux.
 
 The scope can be accessed by instantiating an oscilloscope object with the correct scopeid (always 0 for one scope
-attached). Things like voltage divisions and sampling rates can be set by the appropriate methods. As I finish developing
-this, I will include documentation. Each method has some documentation as to what it does currently though, and hopefully
+attached). Things like voltage divisions and sampling rates can be set by the appropriate methods.
+Please check the provided example programs, the comments will give you more hints for own experiments.
+Each method has some documentation as to what it does currently though, and hopefully
 variable names are clear enough to give you some idea what they are for.
 
-## Neat things you can do
+## Developed under Linux
 
-While this scope isn't quite as poweful as your many-thousand dollar Tektronix or even your run of the mill Rigol 1102E,
-with a little bit of programming, it's capable of doing interesting things. User -johoe on reddit was able to use
-[this library and scope to launch a successful side-channel attack on his TREZOR bitcoin device, and extract the
-device's private keys](http://www.reddit.com/r/TREZOR/comments/31z7hc/extracting_the_private_key_from_a_trezor_with_a/#);
-yes side-channel attacks aren't just for NSA spooks and crusty academics anymore, even you can do it in your home
-with this inexpensive USB scope. :)
+If you're on Linux, you're in luck. Provided are bindings for libusb to operate this
+little device. You may wish to first add 60-hantek-6022-usb.rules to your udev rules, via
 
-If you have you have your own examples or have seen this library used, please let me know so I can add the examples here.
+    sudo cp 60-hantek-6022-usb.rules /etc/udev/rules.d/
+
+After you've done this, the scope should automatically come up with the correct permissions to be accessed
+without being root user.
+
+The following instructions are tested with Debian (*stretch* and *buster*)
+and are executed also automatically under Ubuntu (*1804*) - have a look
+at the [appveyor build status](https://ci.appveyor.com/project/Ho-Ro/Hantek6022API/branch/master)
+and the [related config file](https://github.com/Ho-Ro/Hantek6022API/blob/master/appveyor.yml).
+
+To compile the custom firmware you have to install (as root) the *small devices c compiler* `sdcc` and the tool `pkgconf`:
+
+    sudo apt install sdcc pkgconf
+
+### Submodule fx2lib
+Hantek6022API uses the submodule [fx2lib](https://github.com/Ho-Ro/fx2lib) that I cloned from the [original fx2lib](https://github.com/djmuhlestein/fx2lib) to do minor maintenance updates.
+
+Pull the submodule in:
+
+    git submodule init
+    git submodule update --remote
+
+To build the custom firmware run `make` in the top level directory:
+
+    make
+
+To build and install the python package you have to install some more .deb packages
+
+    sudo apt install python3-setuptools python3-libusb1
+
+Build and install the python modules and the firmware (e.g. into /usr/local/lib/python3.5/dist-packages/Python-Hantek...).
+
+    sudo python3 setup.py install
+
+Or use the Makefile:
+
+    sudo make install
+
+To build a simple debian package (this is the preferred installation procedure) you need two more packages:
+(checkinstall is not available in *buster*, but you can use the package from *buster-backports*, *stretch*, *bullseye* or *sid*):
+
+    sudo apt install checkinstall fakeroot
+
+Create a debian package:
+
+    make deb
+
+that can be installed with
+
+    make debinstall
+
+which calls
+
+    sudo dpkg -i hantek6022api_...
+
+for the latest debian package. This installs the python modules together with some utility programs.
+
+With the device plugged in, run `upload_6022_firmware.py`  (installed into `/usr/local/bin`) to bootstrap the scope for use. 
+You can then write your own programs, or look at the current channel 1 scope trace via `python examples/scopevis.py`.
+
+## It even works under Windows
+
+[@justlep](https://github.com/justlep) wrote:
+> here is what I did:
+
+    install Python3
+    get the required libusb-1.0.dll file:
+    download the v1.0.23 zip from
+    https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-1.0.23/
+    extract libusb-1.0.dll from the zip file into {Python install dir}/
+    (where python.exe sits)
+
+    prepare Hantek6022API:
+    git clone https://github.com/Ho-Ro/Hantek6022API
+    cd Hantek6022API
+    pip install .
+
+You can also use the `libusb-1.0.dll` file from the
+[libusb-1.0 version](https://github.com/OpenHantek/OpenHantek6022/blob/master/cmake/libusb-1.0.21-win.7z)
+that is provided by [OpenHantek6022](https://github.com/OpenHantek/OpenHantek6022).
+The `libusb-1.0.dll` file should be found in the PATH, e.g. it could be in the `python.exe` directory or together with the example programs in the same directory.
+
+YMMV, I checked it only with a bare-bones virtual Win7 install under Debian.
 
 ## Create calibration values for OpenHantek
 
@@ -107,65 +186,7 @@ Requested Voltage | Applied Voltage | Comment
 
 [Read more about the eeprom content...](docs/README.md#eeprom)
 
-## Now with Linux support
-
-If you're on Linux, you're also in luck. Provided are some reverse engineered binding for libusb to operate this 
-little device. You may wish to first add 60-hantek-6022-usb.rules to your udev rules, via
-
-    sudo cp 60-hantek-6022-usb.rules /etc/udev/rules.d/
-
-After you've done this, the scope should automatically come up with the correct permissions to be accessed without a
-root user.
-
-The following instructions are tested with Debian (Stretch and Buster) and are executed also automatically under Ubuntu (1804) - have a look at the [appveyor build status](https://ci.appveyor.com/project/Ho-Ro/Hantek6022API/branch/master) and the [related config file](https://github.com/Ho-Ro/Hantek6022API/blob/master/appveyor.yml).
-
-To compile the custom firmware you have to install (as root) the _small devices c compiler_ sdcc:
-
-    sudo apt install sdcc
-
-### Submodule fx2lib
-Hantek6022API uses the submodule [fx2lib](https://github.com/Ho-Ro/fx2lib) that I cloned from the [original fx2lib](https://github.com/djmuhlestein/fx2lib) to do minor maintenance updates.
-
-Pull the submodule in:
-
-    git submodule update --remote
-
-To build the custom firmware run `make` in the top level directory:
-
-    make
-
-To build and install the python package you have to install some more .deb packages:
-
-    sudo apt install python3-setuptools python3-libusb1
-
-Build and install the python modules and the firmware (e.g. into /usr/local/lib/python3.5/dist-packages/Python-Hantek...).
-
-    sudo python3 setup.py install
-
-Or use the Makefile:
-
-    sudo make install
-
-To build a debian package you need two more packages:
-
-    (sudo) apt install checkinstall fakeroot
-
-Create a debian package:
-
-    make deb
-
-that can be installed with
-
-    make debinstall
-
-which calls
-
-    sudo dpkg -i hantek6022api_...
-
-for the latest debian package. This installs the python modules together with some utility programs.
-
-With the device plugged in, run `upload_6022_firmware.py`  (installed into `/usr/local/bin`) to bootstrap the scope for use. 
-You can then write your own programs, or look at the current channel 1 scope trace via `python examples/scopevis.py`.
+## Use the device as a data logger ##
 
 The program `capture_6022.py` (also in `/usr/local/bin/`) allows to capture both channels over a long time.
 
@@ -188,6 +209,17 @@ It writes the captured data into stdout or an outfile and calculates DC, AC and 
       -y CH2, --ch2 CH2     gain of channel 2 (1, 2, 5, 10, default: 1)
 
 
+## Other neat things you can do
+
+While this scope isn't quite as poweful as your many-thousand dollar Tektronix or even your run of the mill Rigol 1102E,
+with a little bit of programming, it's capable of doing interesting things. User -johoe on reddit was able to use
+[this library and scope to launch a successful side-channel attack on his TREZOR bitcoin device, and extract the
+device's private keys](http://www.reddit.com/r/TREZOR/comments/31z7hc/extracting_the_private_key_from_a_trezor_with_a/#);
+yes side-channel attacks aren't just for NSA spooks and crusty academics anymore, even you can do it in your home
+with this inexpensive USB scope. :)
+
+If you have you have your own examples or have seen this library used, please let me know so I can add the examples here.
+
 ## TODO
 
  1. Clean up library, apply good formatting.
@@ -200,5 +232,3 @@ this could be used as a quick and dirty DAQ for many interesting systems.
 For additional (interesting) details, the inquisitive reader should take two or three hours and read:
 http://www.eevblog.com/forum/testgear/hantek-6022be-20mhz-usb-dso/ 
 
-UPDATE: If you're interested in contributing and updating this repo, I'd be glad to have help maintaining it.
- I do accept pull requests.
