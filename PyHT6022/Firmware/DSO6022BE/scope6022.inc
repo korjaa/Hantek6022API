@@ -239,10 +239,12 @@ static const struct samplerate_info samplerates[] = {
 	{   2, waveform_2,   ifconfig_2   }, //   2 MS/s
 	{   1, waveform_1,   ifconfig_1   }, //   1 MS/s
 	{ 150, waveform_150, ifconfig_150 }, // 500 kS/s
+	{ 140, waveform_140, ifconfig_140 }, // 400 kS/s
 	{ 120, waveform_120, ifconfig_120 }, // 200 kS/s
 	{ 110, waveform_110, ifconfig_110 }, // 100 kS/s
 	{ 106, waveform_106, ifconfig_106 }, //  64 kS/s
 	{ 105, waveform_105, ifconfig_105 }, //  50 kS/s
+	{ 104, waveform_104, ifconfig_104 }, //  40 kS/s
 	{ 102, waveform_102, ifconfig_102 }, //  20 kS/s
 };
 

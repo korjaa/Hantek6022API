@@ -125,7 +125,8 @@ In the end you can have a statistical gain tolerance of about 7%...10% -> RSS an
 - sqrt( 4 * (5%)² ) = 2 * 5% = 10% for all other gains
 
 To reduce this effect OpenHantek uses individual correction values:
-1. Offset and gain calibration are read from a calibration file `~/.config/OpenHantek/modelDSO6022.conf`
+1. Offset and gain calibration are read from a calibration file `~/.config/OpenHantek/modelDSO6022.ini` (Linux, Unix, macOS)
+or `%APPDATA%\OpenHantek\modelDSO6022.ini` for Windows.
 2. If this file is not available offset and calibration will be read from eeprom.
 
 Step 2 uses the factory offset calibration values in eeprom.

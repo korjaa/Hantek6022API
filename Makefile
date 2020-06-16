@@ -62,5 +62,3 @@ xfer:
 	../OpenHantek/OpenHantek6022/openhantek/res/firmware
 	cp $(BL)/dso6022bl-firmware.hex \
 	../OpenHantek/OpenHantek6022/openhantek/res/firmware
-	cp $(DDS)/dds120-firmware.hex \
-	../OpenHantek/OpenHantek6022/openhantek/res/firmware
