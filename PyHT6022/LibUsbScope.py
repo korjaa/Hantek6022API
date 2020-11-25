@@ -12,7 +12,7 @@ from struct import pack
 from PyHT6022.Firmware import dso6022be_firmware, dso6022bl_firmware, fx2_ihex_to_control_packets
 
 class Oscilloscope(object):
-    FIRMWARE_VERSION = 0x0206
+    FIRMWARE_VERSION = 0x0207
     NO_FIRMWARE_VENDOR_ID = 0x04B4
     FIRMWARE_PRESENT_VENDOR_ID = 0x04B5
     PRODUCT_ID_BE = 0x6022
@@ -66,10 +66,12 @@ class Oscilloscope(object):
 
     SAMPLE_RATES = {
                     102: ( "20 kS/s",  20e3),
+                    104: ( "40 kS/s",  40e3),
                     105: ( "50 kS/s",  50e3),
                     106: ( "64 kS/s",  64e3),
                     110: ("100 kS/s", 100e3),
                     120: ("200 kS/s", 200e3),
+                    140: ("400 kS/s", 400e3),
                     150: ("500 kS/s", 500e3),
                       1: (  "1 MS/s",   1e6),
                       2: (  "2 MS/s",   2e6),
@@ -742,10 +744,12 @@ class Oscilloscope(object):
         :param rate_index: The rate_index. These are the keys for the SAMPLE_RATES dict for the Oscilloscope object.
                            Common rate_index values and actual sample rate per channel:
                            102 <->  20 kS/s
+                           104 <->  40 kS/s
                            105 <->  50 kS/s
                            106 <->  64 kS/s
                            110 <-> 100 kS/s
                            120 <-> 200 kS/s
+                           140 <-> 400 kS/s
                            150 <-> 500 kS/s
                              1 <->   1 MS/s
                              2 <->   2 MS/s

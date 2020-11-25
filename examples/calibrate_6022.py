@@ -168,7 +168,7 @@ for gain in gainSteps:
 
 if ( create_config ):
     # prepare config file
-    configfile = "modelDSO6022.conf"
+    configfile = "modelDSO6022.ini"
     config = open( configfile, "w" )
     config.write( ";OpenHantek calibration file for DSO6022\n;Created by tool 'calibrate.py'\n\n" )
     config.write( "[offset]\n" )
