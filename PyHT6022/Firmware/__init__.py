@@ -27,7 +27,7 @@ def fx2_ihex_to_control_packets(firmware_location):
             if record_type == 0x00:
                 checksum = (sum(record_data) + record_len + (addr % 256) + (addr >> 8)) % 256
                 assert not ((checksum + file_checksum) % 256) & 0xFF
-                packets.append(FirmwareControlPacket(record_len, addr, array.array('B', record_data).tostring()))
+                packets.append(FirmwareControlPacket(record_len, addr, array.array('B', record_data).tobytes()))
             elif record_type == 0x01:
                 assert file_checksum == 0xFF
                 break
