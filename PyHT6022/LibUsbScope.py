@@ -412,7 +412,7 @@ class Oscilloscope(object):
         :param timeout: (OPTIONAL) A timeout for the transfer. Default: 0 (No timeout)
         :return: True if successful. May assert or raise various libusb errors if something went wrong.
         """
-        cal_list = cal_list if isinstance(cal_list, bytearray) else array.array('B', cal_list).tostring()
+        cal_list = cal_list if isinstance(cal_list, bytearray) else array.array('B', cal_list).tobytes()
         return self.write_eeprom(self.CALIBRATION_EEPROM_OFFSET, cal_list, timeout=timeout)
 
 
