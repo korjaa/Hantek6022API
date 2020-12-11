@@ -56,7 +56,7 @@ The stock Hantek firmware is provided so that it may be uploaded and utilized as
 
 ## EEPROM
 
-The device contains a 512 byte eeprom.  The first 8 byte of the eeprom
+The device contains a 256 byte eeprom 24LC02B. The first 8 byte of the eeprom
 are important for startup.  They contain the initial USB vendor and
 device id to allow it to be detected before the firmware is flashed.
 See chapter 3.4.2 of the ez-usb technical reference manual.
