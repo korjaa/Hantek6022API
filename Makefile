@@ -30,7 +30,7 @@ install: all
 	-rm -rf build/*
 	-rm -rf dist/*
 	python3 setup.py install
-	if [ -d /etc/udev/rules.d/ ]; then cp 60-hantek-6022-usb.rules /etc/udev/rules.d/; fi
+	if [ -d /etc/udev/rules.d/ ]; then cp 60-hantek6022api.rules /etc/udev/rules.d/; fi
 	install examples/*_6022*.py /usr/local/bin
 	install fx2upload/fx2upload /usr/local/bin
 
