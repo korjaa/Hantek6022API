@@ -11,18 +11,19 @@ commands map as follows:
 
 | Oscilloscope Command | bRequest Value | Other Notes                                                            |
 |----------------------|----------------|------------------------------------------------------------------------|
-| Set CH0 voltage range|      0xE0      | Parameter: 1,2,5,10 (Gain x1: 5V, x2: 2.5V, x5: 1V, x10: 500mV).            |
-| Set CH1 voltage range|      0xE1      | Parameter: 1,2,5,10 (Gain x1: 5V, x2: 2.5V, x5: 1V, x10: 500mV).            |
+| Set CH0 voltage range|      0xE0      | Parameter: 1,2,5,10 (Gain x1: 5V, x2: 2.5V, x5: 1V, x10: 500mV).       |
+| Set CH1 voltage range|      0xE1      | Parameter: 1,2,5,10 (Gain x1: 5V, x2: 2.5V, x5: 1V, x10: 500mV).       |
 | Set Sampling Rate    |      0xE2      | Parameter:                                                             |
-|                      |                |   48, 30, 24, 16, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1 (MHz)                |
-|                      |                |   and 150,120,110,106 (500, 200, 100, 60 kHz).                         |
+|                      |                |   48, 30, 24, 16, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1 (MS/s)               |
+|                      |                |   and 150, 140, 120, 110, 106, 105, 104, 102                           |
+|                      |                |   (i.e. 500, 400, 200, 100, 64, 50, 40, 20 kS/s).                      |
 | Trigger Oscilloscope |      0xE3      | Clear the FIFO on the FX2LP                                            |
 | Set Channel Number   |      0xE4      | Parameter: 1, 2                                                        |
 | Set AC_DC coupling *)|      0xE5      | Parameter: 0x00: AC/AC, 0x01: AC/DC, 0x10: DC/AC, 0x11: DC/DC          |
 | *) with [HW modification](HANTEK6022_AC_Modification.pdf)                                                      |
 | Set Calibration Out  |      0xE6      | Parameter:                                                             |
 |                      |                |   100, 50, 20, 10, 5, 2, 1 (kHz)                                       |
-|                      |                |   and 150, 120, 110, 105 ( 500, 200, 100, 50 Hz)                       |
+|                      |                |   and 150, 120, 110, 106, 105 (500, 200, 100, 60, 50 Hz)               |
 | Read/Write EEPROM    |      0xA2      | Read or write the eeprom built into the scope.                         |
 | Read/Write Firmware  |      0xA0      | Read or write the scope firmware. Must be done on scope initialization |
 
@@ -56,9 +57,10 @@ The stock Hantek firmware is provided so that it may be uploaded and utilized as
 
 ## EEPROM
 
-The device contains a 256 byte eeprom 24LC02B. The first 8 byte of the eeprom
-are important for startup.  They contain the initial USB vendor and
-device id to allow it to be detected before the firmware is flashed.
+The device contains a 256 byte eeprom 24LC02B at I2C address 0x51.
+The first 8 byte of the eeprom are important for startup.
+They contain the initial USB vendor and device id to allow it
+to bedetected before the firmware is flashed.
 See chapter 3.4.2 of the ez-usb technical reference manual.
 Example for 6022BE: `c0 b4 04 22 60 00 00 00`
 
