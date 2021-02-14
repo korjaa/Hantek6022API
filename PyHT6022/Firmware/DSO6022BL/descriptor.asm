@@ -19,7 +19,7 @@
 
 VID = 0xB504	; Manufacturer ID (0x04B5)
 PID = 0x2A60	; Product ID (0x602A) = 6022BL
-VER = 0x0702	; FW version 0x0207
+VER = 0x0802	; FW version 0x0208
 POWER = 500/2	; Max 500 mA (1=2mA)
 
 
