@@ -1,14 +1,10 @@
 #!/usr/bin/python3
 
-# flash the file "firmware_BE.hex" on the DSO2020 
-# this device has the same HW as DSO6022, but different PID=0x2020
-# it will become a DSO6022 when the FW is loaded
-
 from PyHT6022.LibUsbScope import Oscilloscope
 
-firmware = "dso6022be-firmware.hex"
+firmware = "dso6021-firmware.hex"
 VID=0x04b4
-PID=0x2020
+PID=0x6021
 
 scope = Oscilloscope( VID, PID )
 scope.setup()

@@ -10,9 +10,9 @@ print( "FW version", hex( scope.get_fw_version() ) )
 
 # read 1st 8 bytes
 eeprom = scope.read_eeprom( 0, 8 )
-print( eeprom )
+# print( eeprom )
 
-#EE_SIZE = 128 # 16 KByte 24C128
+# EE_SIZE = 128 # 16 KByte 24C128
 EE_SIZE = 2 # 256 Byte 24C02
 
 # clear eeprom
@@ -25,13 +25,14 @@ while adr < EE_SIZE * 128:
 
 # get the Hantek6022BE id
 f = open( "eeprom_6022.dat", "rb" )
-hantek6022_id = (f.read())
+hantek_id = (f.read())
 f.close()
 
-print( hantek6022_id )
+for b in hantek_id:
+	print( hex( b ), end=' ' )
+print()
 
 # write new content
-scope.write_eeprom( 0, hantek6022_id )
+scope.write_eeprom( 0, hantek_id )
 scope.close_handle()
-
 

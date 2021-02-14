@@ -2,7 +2,7 @@
 
 """
 Flash default firmware into device
-either firmareBE or firmwareBL
+ither firmare-DSO6022BE or firmware-DSO6022BL or firmware-DSO6021
 depending on VID/PID
 """
 

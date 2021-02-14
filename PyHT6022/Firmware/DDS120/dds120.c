@@ -18,13 +18,13 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fx2macros.h>
-#include <fx2ints.h>
 #include <autovector.h>
 #include <delay.h>
-#include <setupdat.h>
-#include <i2c.h>
 #include <eputils.h>
+#include <fx2ints.h>
+#include <fx2macros.h>
+#include <i2c.h>
+#include <setupdat.h>
 
 
 /* A and C and E set to PORT */
@@ -42,19 +42,47 @@
 #define INIT_OEC 0xFF
 #define INIT_OEE 0xFF
 
-#define SET_ANALOG_MODE() do { PA7 = 1; } while (0)
+#define SET_ANALOG_MODE() \
+    do {                  \
+        PA7 = 1;          \
+    } while ( 0 )
 
-#define SET_CALIBRATION_PULSE(x) do { set_calibration_pulse(x); } while (0)
+#define SET_CALIBRATION_PULSE( x )  \
+    do {                            \
+        set_calibration_pulse( x ); \
+    } while ( 0 )
 
 /* Note: There's no PE2 as IOE is not bit-addressable (see TRM 15.2). */
-#define TOGGLE_CALIBRATION_PIN() do { IOE = IOE ^ 0x04; } while (0)
+#define TOGGLE_CALIBRATION_PIN() \
+    do {                         \
+        IOE = IOE ^ 0x04;        \
+    } while ( 0 )
 
-#define SET_COUPLING(x)			do { set_coupling(x); } while (0)
 
-#define LED_CLEAR()			NOP
-#define LED_GREEN()			NOP
-#define LED_RED()			NOP
-#define LED_RED_TOGGLE()		NOP
+/**
+ * Each LSB in the nibble of the byte controls the coupling per channel.
+ * 0: AC, 1: DC
+ *
+ * Setting PE3 disables AC coupling capacitor on CH0.
+ * Setting PE0 disables AC coupling capacitor on CH1.
+ */
+static BOOL set_coupling( BYTE coupling_cfg ) {
+    if ( coupling_cfg & 0x01 )
+        IOE |= 0x08;
+    else
+        IOE &= ~0x08;
+    if ( coupling_cfg & 0x10 )
+        IOE |= 0x01;
+    else
+        IOE &= ~0x01;
+    return TRUE;
+}
+
+
+#define LED_CLEAR() NOP
+#define LED_GREEN() NOP
+#define LED_RED() NOP
+#undef LED_RED_TOGGLE
 
 
 /**
@@ -71,75 +99,73 @@
  * PC1=0; PC2=1; PC3=0 -> Gain x2   =  +6dB
  *
  * #Channel 1:
- * PE1=1; PC4=0; PC5=0 -> Gain x0.1 = -20dB 
+ * PE1=1; PC4=0; PC5=0 -> Gain x0.1 = -20dB
  * PE1=1; PC4=0; PC5=1 -> Gain x0.2 = -14dB
  * PE1=1; PC4=1; PC5=0 -> Gain x0.4 =  -8dB
  * PE1=0; PC4=0; PC5=0 -> Gain x0.5 =  -6dB
  * PE1=0; PC4=0; PC5=1 -> Gain x1   =   0dB
  * PE1=0; PC4=1; PC5=0 -> Gain x2   =  +6dB
  */
-static BOOL set_voltage(BYTE channel, BYTE val)
-{
-	BYTE bits_C, bit_E, mask_C, mask_E;
+static BOOL set_voltage( BYTE channel, BYTE val ) {
+    BYTE bits_C, bit_E, mask_C, mask_E;
 
-	if (channel == 0) {
-		mask_C = 0x0E;
-		mask_E = 0x00;
-		bit_E = 0;
-		switch (val) {
-		case 1:
-			bits_C = 0x02;
-			break;
-		case 2:
-			bits_C = 0x06;
-			break;
-		case 5:
-			bits_C = 0x00;
-			break;
-		case 10:
-			bits_C = 0x04;
-			break;
-		case 20:
-			bits_C = 0x08;
-			break;
-		default:
-			return FALSE;
-		}
-	} else if (channel == 1) {
-		mask_C = 0x30;
-		mask_E = 0x02;
-		switch (val) {
-		case 1:
-			bits_C = 0x00;
-			bit_E = 0x02; 
-			break;
-		case 2:
-			bits_C = 0x10;
-			bit_E = 0x02; 
-			break;
-		case 5:
-			bits_C = 0x00;
-			bit_E = 0x00; 
-			break;
-		case 10:
-			bits_C = 0x10;
-			bit_E = 0x00; 
-			break;
-		case 20:
-			bits_C = 0x20;
-			bit_E = 0x00; 
-			break;
-		default:
-			return FALSE;
-		}
-	} else {
-		return FALSE;
-	}
-	IOC = (IOC & ~mask_C) | (bits_C & mask_C);
-	IOE = (IOE & ~mask_E) | (bit_E & mask_E);
-		
-	return TRUE;
+    if ( channel == 0 ) {
+        mask_C = 0x0E;
+        mask_E = 0x00;
+        bit_E = 0;
+        switch ( val ) {
+        case 1:
+            bits_C = 0x02;
+            break;
+        case 2:
+            bits_C = 0x06;
+            break;
+        case 5:
+            bits_C = 0x00;
+            break;
+        case 10:
+            bits_C = 0x04;
+            break;
+        case 20:
+            bits_C = 0x08;
+            break;
+        default:
+            return FALSE;
+        }
+    } else if ( channel == 1 ) {
+        mask_C = 0x30;
+        mask_E = 0x02;
+        switch ( val ) {
+        case 1:
+            bits_C = 0x00;
+            bit_E = 0x02;
+            break;
+        case 2:
+            bits_C = 0x10;
+            bit_E = 0x02;
+            break;
+        case 5:
+            bits_C = 0x00;
+            bit_E = 0x00;
+            break;
+        case 10:
+            bits_C = 0x10;
+            bit_E = 0x00;
+            break;
+        case 20:
+            bits_C = 0x20;
+            bit_E = 0x00;
+            break;
+        default:
+            return FALSE;
+        }
+    } else {
+        return FALSE;
+    }
+    IOC = ( IOC & ~mask_C ) | ( bits_C & mask_C );
+    IOE = ( IOE & ~mask_E ) | ( bit_E & mask_E );
+
+    return TRUE;
 }
 
 #include "../DSO6022BE/scope6022.inc"
-

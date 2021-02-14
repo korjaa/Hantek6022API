@@ -10,10 +10,9 @@ Without source code this was a not so easy task - good work!
 If you're interested in the details read the huge EEVBLOG thread, this is a
 [good starting point](https://www.eevblog.com/forum/testgear/hantek-6022be-20mhz-usb-dso/msg656059/#msg656059).
 
-The **custom firmware** (BE & BL) is based on fx2lib code. The latest version also allows reading/writing of EEPROMs
-and thus has all features like the stock and modded versions and allows an easy implementation of new features.
-The digital storage oscilloscope program **OpenHantek6022** from https://github.com/OpenHantek/OpenHantek6022
-already uses this custom FW.
+The original custom firmware (for 6022BE) is based on fx2lib code. The latest version also allows reading/writing of EEPROMs and thus has all features like the stock and modded versions and allows an easy implementation of new features.
+
+My project [OpenHantek6022](https://github.com/OpenHantek/OpenHantek6022) uses the improved final versions [DSO6022BE](https://github.com/Ho-Ro/Hantek6022API/tree/master/PyHT6022/Firmware/DSO6022BE), [DSO6022BL](https://github.com/Ho-Ro/Hantek6022API/tree/master/PyHT6022/Firmware/DSO6022BL) and [DDS120](https://github.com/Ho-Ro/Hantek6022API/tree/master/PyHT6022/Firmware/DDS120) for the currently supported scope variants. These FWs provide more sampling rates (20 kS/s .. 30 MS/s) and more calibration-out frequencies as well as support for AC/DC coupling (small HW mod requred for Hantek scopes).
 
 Provided are different FW flavours as part of the python package:
 
@@ -22,9 +21,9 @@ Provided are different FW flavours as part of the python package:
 | stock_firmware     | stock/stock_fw.ihex          | Firmware that was originally uploaded to the device by vendor SW |
 | mod_firmware_01    | modded/mod_fw_01.ihex        | Patched stock firmware with sample rate and stability improvements |
 | mod_firmware_iso   | modded/mod_fw_iso.ihex       | Patched stock firmware that allows isochronous transfer (instead of bulk) |
-| custom_firmware_BE | DSO6022BE/dso6022be-firmware.hex | backported from sigrok-fw |
-| custom_firmware_BL | DSO6022BL/dso6022bl-firmware.hex | backported from sigrok-fw |
+| dso6022be_firmware | DSO6022BE/dso6022be-firmware.hex | backported from sigrok-fw |
+| dso6022bl_firmware | DSO6022BL/dso6022bl-firmware.hex | backported from sigrok-fw |
+| dds120_firmware    | DDS120/dds120-firmware.hex       | backported from sigrok-fw |
 
 Default:
-    default_firmware = custom_firmware = custom_firmware_BE
-
+    firmware = default_firmware = dso6022be_firmware

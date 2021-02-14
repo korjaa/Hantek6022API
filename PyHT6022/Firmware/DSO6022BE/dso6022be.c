@@ -18,13 +18,13 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fx2macros.h>
-#include <fx2ints.h>
 #include <autovector.h>
 #include <delay.h>
-#include <setupdat.h>
-#include <i2c.h>
 #include <eputils.h>
+#include <fx2ints.h>
+#include <fx2macros.h>
+#include <i2c.h>
+#include <setupdat.h>
 
 
 /* A and C and E set to PORT */
@@ -45,17 +45,52 @@
 
 #define SET_ANALOG_MODE()
 
-#define SET_COUPLING(x)			do { set_coupling(x); } while (0)
 
-#define TOGGLE_CALIBRATION_PIN()	do { PA7 = !PA7; } while (0)
+/**
+ * Each LSB in the nibble of the byte controls the coupling per channel.
+ * 0: AC, 1: DC
+ *
+ * Setting PE3 disables AC coupling capacitor on CH0.
+ * Setting PE0 disables AC coupling capacitor on CH1.
+ */
+static BOOL set_coupling( BYTE coupling_cfg ) {
+    if ( coupling_cfg & 0x01 )
+        IOE |= 0x08;
+    else
+        IOE &= ~0x08;
+    if ( coupling_cfg & 0x10 )
+        IOE |= 0x01;
+    else
+        IOE &= ~0x01;
+    return TRUE;
+}
 
-#define LED_CLEAR()			do { PC0 = 1; PC1 = 1; } while (0)
-#define LED_GREEN()			do { PC0 = 1; PC1 = 0; } while (0)
-#define LED_RED()			do { PC0 = 0; PC1 = 1; } while (0)
-#define LED_RED_TOGGLE()		do { PC0 = !PC0; PC1 = 1; } while (0)
 
-/* CTLx pin index (IFCLK, ADC clock input). */
-// #define CTL_BIT 2
+#define TOGGLE_CALIBRATION_PIN() \
+    do {                         \
+        PA7 = !PA7;              \
+    } while ( 0 )
+
+#define LED_CLEAR() \
+    do {            \
+        PC0 = 1;    \
+        PC1 = 1;    \
+    } while ( 0 )
+#define LED_GREEN() \
+    do {            \
+        PC0 = 1;    \
+        PC1 = 0;    \
+    } while ( 0 )
+#define LED_RED() \
+    do {          \
+        PC0 = 0;  \
+        PC1 = 1;  \
+    } while ( 0 )
+#define LED_RED_TOGGLE() \
+    do {                 \
+        PC0 = !PC0;      \
+        PC1 = 1;         \
+    } while ( 0 )
 
 /*
  * This sets three bits for each channel, one channel at a time.
@@ -78,32 +113,30 @@
  * both channels and then we mask it out to only affect the channel currently
  * requested.
  */
-static BOOL set_voltage(BYTE channel, BYTE val)
-{
-	BYTE bits, mask;
+static BOOL set_voltage( BYTE channel, BYTE val ) {
+    BYTE bits, mask;
 
-	switch (val) {
-	case 1:
-		bits = 0x24 * 2;
-		break;
-	case 2:
-		bits = 0x24 * 1;
-		break;
-	case 5:
-		bits = 0x24 * 0;
-		break;
-	case 10:
-		bits = 0x24 * 3;
-		break;
-	default:
-		return FALSE;
-	}
+    switch ( val ) {
+    case 1:
+        bits = 0x24 * 2;
+        break;
+    case 2:
+        bits = 0x24 * 1;
+        break;
+    case 5:
+        bits = 0x24 * 0;
+        break;
+    case 10:
+        bits = 0x24 * 3;
+        break;
+    default:
+        return FALSE;
+    }
 
-	mask = (channel) ? 0xe0 : 0x1c;
-	IOC = (IOC & ~mask) | (bits & mask);
+    mask = ( channel ) ? 0xe0 : 0x1c;
+    IOC = ( IOC & ~mask ) | ( bits & mask );
 
-	return TRUE;
+    return TRUE;
 }
 
 #include "scope6022.inc"
-

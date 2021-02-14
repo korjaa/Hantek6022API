@@ -1,23 +1,29 @@
-all: fw_DSO6022BE fw_DSO6022BL fw_DDS120 fx2upload
+all: fw_DSO6021 fw_DSO6022BE fw_DSO6022BL fw_DDS120 fx2upload
 
-BE=PyHT6022/Firmware/DSO6022BE
-BL=PyHT6022/Firmware/DSO6022BL
-DDS=PyHT6022/Firmware/DDS120
+DSO6021=PyHT6022/Firmware/DSO6021
+DSO6022BE=PyHT6022/Firmware/DSO6022BE
+DSO6022BL=PyHT6022/Firmware/DSO6022BL
+DDS120=PyHT6022/Firmware/DDS120
+
+
+.PHONY: fw_DSO6021
+fw_DSO6021:
+	cd $(DSO6021) && make
 
 
 .PHONY: fw_DSO6022BE
 fw_DSO6022BE:
-	cd $(BE) && make
+	cd $(DSO6022BE) && make
 
 
 .PHONY: fw_DSO6022BL
 fw_DSO6022BL:
-	cd $(BL) && make
+	cd $(DSO6022BL) && make
 
 
 .PHONY: fw_DDS120
 fw_DDS120:
-	cd $(DDS) && make
+	cd $(DDS120) && make
 
 
 .PHONY: fx2upload
@@ -50,15 +56,18 @@ clean:
 	-rm *~ .*~
 	-rm -rf build/*
 	-rm -rf dist/*
-	( cd $(BE) && make clean )
-	( cd $(BL) && make clean )
-	( cd $(DDS) && make clean )
+	( cd $(DSO6021) && make clean )
+	( cd $(DSO6022BE) && make clean )
+	( cd $(DSO6022BL) && make clean )
+	( cd $(DDS120) && make clean )
 	( cd fx2upload && make clean )
 
 
 .PHONY: xfer
 xfer:
-	cp $(BE)/dso6022be-firmware.hex \
-	../OpenHantek/OpenHantek6022/openhantek/res/firmware
-	cp $(BL)/dso6022bl-firmware.hex \
-	../OpenHantek/OpenHantek6022/openhantek/res/firmware
+	cp $(DSO6021)/dso6021-firmware.hex \
+	../OpenHantek6022/openhantek/res/firmware
+	cp $(DSO6022BE)/dso6022be-firmware.hex \
+	../OpenHantek6022/openhantek/res/firmware
+	cp $(DSO6022BL)/dso6022bl-firmware.hex \
+	../OpenHantek6022/openhantek/res/firmware

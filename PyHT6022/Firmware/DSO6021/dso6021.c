@@ -26,78 +26,91 @@
 #include <i2c.h>
 #include <setupdat.h>
 
+/* Port A
+ * PA7 - calibration out
+ * PA6 - AC CH1 out
+ * PA5..4 - gain CH1 out
+ * PA3 - LED green out
+ * PA2 - AC CH0 out
+ * PA1..0 - gain CH1 out
+ */
 
 /* A and C and E set to PORT */
 #define INIT_PORTACFG 0
 #define INIT_PORTCCFG 0
 #define INIT_PORTECFG 0
 
-/* Set port E that a 6022 with AC/DC HW mod will start in DC mode like the original */
+/* Set port A that a 6021 will start in DC mode like the original */
 #define INIT_IOA 0x00
 #define INIT_IOC 0x00
-#define INIT_IOE 0x09
+#define INIT_IOE 0x00
 
-/* set PORT A, C, E as output */
+/* set PORT A as output, unavailable C and E as input */
 #define INIT_OEA 0xFF
-#define INIT_OEC 0xFF
-#define INIT_OEE 0xFF
+#define INIT_OEC 0x00
+#define INIT_OEE 0x00
 
 
-#define SET_ANALOG_MODE() \
-    do {                  \
-        PA7 = 1;          \
+#define SET_ANALOG_MODE()
+
+// Resetting PA2 disables AC coupling capacitor on CH0.
+// Resetting PA6 disables AC coupling capacitor on CH1.
+
+#define CH0_DC()     \
+    do { \
+        IOA &= ~0x04; \
     } while ( 0 )
+#define CH0_AC() \
+    do { \
+        IOA |= 0x04; \
+    } while ( 0 )
+#define CH1_DC() \
+    do { \
+        IOA &= ~0x40; \
+    } while ( 0 )
+#define CH1_AC() \
+    do { \
+        IOA |= 0x40; \
+    } while ( 0 )
+
 
 /**
  * Each LSB in the nibble of the byte controls the coupling per channel.
  * 0: AC, 1: DC
- *
- * Setting PE3 disables AC coupling capacitor on CH0.
- * Setting PE0 disables AC coupling capacitor on CH1.
  */
 static BOOL set_coupling( BYTE coupling_cfg ) {
     if ( coupling_cfg & 0x01 )
-        IOE |= 0x08;
+        IOA &= ~0x04;
     else
-        IOE &= ~0x08;
+        IOA |= 0x04;
     if ( coupling_cfg & 0x10 )
-        IOE |= 0x01;
+        IOA &= ~0x40;
     else
-        IOE &= ~0x01;
+        IOA |= 0x40;
     return TRUE;
 }
 
 
 #define TOGGLE_CALIBRATION_PIN() \
     do {                         \
-        PC2 = !PC2;              \
+        PA7 = !PA7;              \
     } while ( 0 )
 
 #define LED_CLEAR() \
     do {            \
-        PC0 = 1;    \
-        PC1 = 1;    \
+        PA3 = 0;    \
     } while ( 0 )
 #define LED_GREEN() \
     do {            \
-        PC0 = 1;    \
-        PC1 = 0;    \
+        PA3 = 1;    \
     } while ( 0 )
-#define LED_RED() \
-    do {          \
-        PC0 = 0;  \
-        PC1 = 1;  \
-    } while ( 0 )
-#define LED_RED_TOGGLE() \
-    do {                 \
-        PC0 = !PC0;      \
-        PC1 = 1;         \
-    } while ( 0 )
+#define LED_RED()
+#undef LED_RED_TOGGLE
 
 /*
- * This sets three bits for each channel, one channel at a time.
- * For channel 0 we want to set bits 1, 2 & 3 ( ....XXX. => mask 0x0e )
- * For channel 1 we want to set bits 4, 5 & 6 ( .XXX.... => mask 0x70 )
+ * This sets two bits for each channel, one channel at a time.
+ * For channel 0 we want to set bits 0, 1 ( ......XX => mask 0x03 )
+ * For channel 1 we want to set bits 4, 5 ( ..XX.... => mask 0x30 )
  *
  * We convert the input values that are strange due to original
  * firmware code into the value of the three bits as follows:
@@ -107,11 +120,8 @@ static BOOL set_coupling( BYTE coupling_cfg ) {
  * 2  -> 001b
  * 5  -> 000b
  * 10 -> 011b
- *
- * The third bit is always zero since there are only four outputs connected
- * in the serial selector chip.
- *
- * The multiplication of the converted value by 0x12 sets the relevant bits in
+ * *
+ * The multiplication of the converted value by 0x11 sets the relevant bits in
  * both channels and then we mask it out to only affect the channel currently
  * requested.
  */
@@ -120,22 +130,22 @@ static BOOL set_voltage( BYTE channel, BYTE val ) {
 
     switch ( val ) {
     case 1:
-        bits = 0x12 * 2;
+        bits = 0x11 * 2;
         break;
     case 2:
-        bits = 0x12 * 1;
+        bits = 0x11 * 1;
         break;
     case 5:
-        bits = 0x12 * 0;
+        bits = 0x11 * 0;
         break;
     case 10:
-        bits = 0x12 * 3;
+        bits = 0x11 * 3;
         break;
     default:
         return FALSE;
     }
 
-    mask = ( channel ) ? 0x70 : 0x0e;
+    mask = ( channel ) ? 0x30 : 0x03;
     IOA = ( IOA & ~mask ) | ( bits & mask );
 
     return TRUE;

@@ -9,12 +9,13 @@ import libusb1
 import threading
 from struct import pack
 
-from PyHT6022.Firmware import dso6022be_firmware, dso6022bl_firmware, fx2_ihex_to_control_packets
+from PyHT6022.Firmware import dso6021_firmware,dso6022be_firmware, dso6022bl_firmware, fx2_ihex_to_control_packets
 
 class Oscilloscope(object):
     FIRMWARE_VERSION = 0x0207
     NO_FIRMWARE_VENDOR_ID = 0x04B4
     FIRMWARE_PRESENT_VENDOR_ID = 0x04B5
+    PRODUCT_ID_21 = 0x6021
     PRODUCT_ID_BE = 0x6022
     PRODUCT_ID_BL = 0x602A
 
@@ -135,11 +136,13 @@ class Oscilloscope(object):
     def setup(self):
         """
         Attempt to find a suitable scope to run.
-        :return: True if a 6022{BE,BL} (or user defined) scope was found, False otherwise.
+        :return: True if a {6022BE, 6022BL, 6021} (or user defined) scope was found, False otherwise.
         """
-        # look for a user defined device that doesn't match 6022{BE,BL}
+        # look for a user defined device that doesn't match {6021,6022BE,6022BL}
         if ( ( self.VID != self.NO_FIRMWARE_VENDOR_ID and self.VID != self.FIRMWARE_PRESENT_VENDOR_ID )
-        or ( self.PID != self.PRODUCT_ID_BE and self.PID != self.PRODUCT_ID_BL ) ):
+        or ( self.PID != self.PRODUCT_ID_21
+         and self.PID != self.PRODUCT_ID_BE
+         and self.PID != self.PRODUCT_ID_BL ) ):
             self.device = (
                 self.context.getByVendorIDAndProductID(
                     self.VID, self.PID, skip_on_error=True, skip_on_access_error=True
@@ -173,6 +176,23 @@ class Oscilloscope(object):
             )
          or self.context.getByVendorIDAndProductID(
                 self.NO_FIRMWARE_VENDOR_ID, self.PRODUCT_ID_BL, skip_on_error=True, skip_on_access_error=True
+            )
+        )
+        if self.device:
+            self.supports_single_channel = \
+            self.is_device_firmware_present = (
+                  self.device.getVendorID() == self.FIRMWARE_PRESENT_VENDOR_ID
+              and self.device.getbcdDevice() == self.FIRMWARE_VERSION
+            ) # latest custom FW loaded
+            return True
+
+        # if not found look for 6021
+        self.device = (
+            self.context.getByVendorIDAndProductID(
+                self.FIRMWARE_PRESENT_VENDOR_ID, self.PRODUCT_ID_21, skip_on_error=True, skip_on_access_error=True
+            )
+         or self.context.getByVendorIDAndProductID(
+                self.NO_FIRMWARE_VENDOR_ID, self.PRODUCT_ID_21, skip_on_error=True, skip_on_access_error=True
             )
         )
         if self.device:
@@ -256,6 +276,8 @@ class Oscilloscope(object):
                 firmware = dso6022be_firmware
             elif self.device.getProductID() == self.PRODUCT_ID_BL:
                 firmware = dso6022bl_firmware
+            elif self.device.getProductID() == self.PRODUCT_ID_21:
+                firmware = dso6021_firmware
             else:
                 return False
         for packet in firmware:
