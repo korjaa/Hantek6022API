@@ -35,7 +35,7 @@
 /* Set port E that a 6022 with AC/DC HW mod will start in DC mode like the original */
 #define INIT_IOA 0x00
 #define INIT_IOC 0x00
-#define INIT_IOE 0x09
+#define INIT_IOE 0x0F
 
 /* set PORT A, C, E as output */
 #define INIT_OEA 0xFF
@@ -48,22 +48,27 @@
         PA7 = 1;          \
     } while ( 0 )
 
+
 /**
  * Each LSB in the nibble of the byte controls the coupling per channel.
  * 0: AC, 1: DC
- *
- * Setting PE3 disables AC coupling capacitor on CH0.
- * Setting PE0 disables AC coupling capacitor on CH1.
+ * 
+ * @fregmented wrote in pull request #9 (https://github.com/Ho-Ro/Hantek6022API/pull/9):
+ * "I added PE1 to CH1 and PE2 to Ch2 to use R40 (PE0, CH2) and R41 (PE1, CH1)
+ * connected to USB-XI ports because the 6022BL does not have JP2."
+ * 
+ * Setting PE1 and PE3 disables AC coupling capacitor on CH0.
+ * Setting PE0 and PE2 disables AC coupling capacitor on CH1.
  */
 static BOOL set_coupling( BYTE coupling_cfg ) {
     if ( coupling_cfg & 0x01 )
-        IOE |= 0x08;
+        IOE |= 0x0A;
     else
-        IOE &= ~0x08;
+        IOE &= ~0x0A;
     if ( coupling_cfg & 0x10 )
-        IOE |= 0x01;
+        IOE |= 0x05;
     else
-        IOE &= ~0x01;
+        IOE &= ~0x05;
     return TRUE;
 }
 
