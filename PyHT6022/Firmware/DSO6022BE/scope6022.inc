@@ -246,7 +246,36 @@ static BOOL set_samplerate( BYTE rate ) {
     return TRUE;
 }
 
+// new functon to set the calibration pulse frequency that allows
+// to set all possible frequencies between 40 Hz and 100 kHz
+// frequencies between 40 Hz and 1000 Hz can be multiples of 10 Hz
+// frequencies between 1 kHz to 100 kHz can be multiples of 1 kHz
+// integer dividers of 2e6 Hz will be exact
+// calibration frequency is coded into one byte parameter freq:
+// freq == 0   -> 100 Hz (compatibility to old sigrok coding)
+// freq 1..100 -> freq in kHz
+// freq > 100  -> (value-100)*10 is freq in Hz
+// e.g. 105 -> 50 Hz, 20 -> 20 kHz
+//
+static BOOL set_calibration_pulse( BYTE freq ) {
+    long frequency;
+    if ( 0 == freq ) // special case for 100 Hz (sigrok)
+        frequency = 100L;
+    else if ( freq <= 100 ) // 1..100 kHz
+        frequency = freq * 1000L;
+    else // 10, 20, 30 ... 990 Hz
+        frequency = ( freq - 100 ) * 10L;
+    if ( frequency < 40L || frequency > 100000L )
+        return FALSE;
+    ledinit = frequency / 2;
+    long rcap = -2e6L / frequency;
+    RCAP2L = rcap & 0xff;
+    RCAP2H = ( rcap & 0xff00 ) >> 8;
+    return TRUE;
+}
 
+
+#if 0
 static BOOL set_calibration_pulse( BYTE freq ) {
     switch ( freq ) {
     case 105: // 50 Hz
@@ -315,6 +344,7 @@ static BOOL set_calibration_pulse( BYTE freq ) {
     }
     return TRUE;
 }
+#endif
 
 
 /* Set *alt_ifc to the current alt interface for ifc. */

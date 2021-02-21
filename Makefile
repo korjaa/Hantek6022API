@@ -64,7 +64,7 @@ clean:
 
 
 .PHONY: xfer
-xfer:
+xfer: all
 	cp $(DSO6021)/dso6021-firmware.hex \
 	../OpenHantek6022/openhantek/res/firmware
 	cp $(DSO6022BE)/dso6022be-firmware.hex \

@@ -36,6 +36,11 @@
 ;; along with this program; if not, see <http://www.gnu.org/licenses/>.
 ;;
 
+; Firmware version and USB power requirement
+VER = 0x0902	; FW version 0x0209
+POWER = 500/2	; Max 500 mA (1=2mA)
+
+
 .macro string_descriptor_a n,str
 _string'n:
 	.nchr	len,"'str"
