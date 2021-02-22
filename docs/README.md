@@ -6,8 +6,9 @@ is thus to be able to write an open source driver that can be used on Linux (or 
 into that) to get more functionality out of this device. 
 
 Robert reverse engineered this scope by using the Windows SDK in a Windows VM, and watching USB traces on his Linux
-host machine. From [jhoenicke](https://github.com/jhoenicke), he was confirmed that the following USB URB control
-commands map as follows:
+host machine.
+
+The following USB URB control commands map as follows:
 
 | Oscilloscope Command | bRequest Value | Other Notes                                                            |
 |----------------------|----------------|------------------------------------------------------------------------|
@@ -18,12 +19,16 @@ commands map as follows:
 |                      |                |   and 150, 140, 120, 110, 106, 105, 104, 102                           |
 |                      |                |   (i.e. 500, 400, 200, 100, 64, 50, 40, 20 kS/s).                      |
 | Trigger Oscilloscope |      0xE3      | Clear the FIFO on the FX2LP                                            |
-| Set Channel Number   |      0xE4      | Parameter: 1, 2                                                        |
+| Set Channel Number   |      0xE4      | Parameter: 1 (transfer only CH1), 2 (transfer CH1 and CH2)             |
 | Set AC_DC coupling *)|      0xE5      | Parameter: 0x00: AC/AC, 0x01: AC/DC, 0x10: DC/AC, 0x11: DC/DC          |
 | *) with [HW modification](HANTEK6022_AC_Modification.pdf)                                                      |
-| Set Calibration Out  |      0xE6      | Parameter:                                                             |
-|                      |                |   100, 50, 20, 10, 5, 2, 1 (kHz)                                       |
-|                      |                |   and 150, 120, 110, 106, 105 (500, 200, 100, 60, 50 Hz)               |
+| Set Calibration Out  |      0xE6      | Parameter freq:                                                        |
+|                      |                |   0 -> 100 Hz (be compatible with sigrok FW)                           |
+|                      |                |   1..100 -> 1..100 kHz                                                 |
+|                      |                |   101..102 -> do not use                                               |
+|                      |                |   103 -> 32 Hz (lowest possible calfreq due to 16bit HW timer2)        |
+|                      |                |   104..200 -> 40..1000 Hz ( calfreq = 10*(freq-100) )                  |
+|                      |                |   201..255 -> 100..5500 Hz ( calfreq = 100*(freq-200) )                |
 | Read/Write EEPROM    |      0xA2      | Read or write the eeprom built into the scope.                         |
 | Read/Write Firmware  |      0xA0      | Read or write the scope firmware. Must be done on scope initialization |
 

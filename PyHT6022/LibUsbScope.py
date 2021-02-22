@@ -12,7 +12,7 @@ from struct import pack
 from PyHT6022.Firmware import dso6021_firmware,dso6022be_firmware, dso6022bl_firmware, fx2_ihex_to_control_packets
 
 class Oscilloscope(object):
-    FIRMWARE_VERSION = 0x0207
+    FIRMWARE_VERSION = 0x0209
     NO_FIRMWARE_VENDOR_ID = 0x04B4
     FIRMWARE_PRESENT_VENDOR_ID = 0x04B5
     PRODUCT_ID_21 = 0x6021
@@ -96,20 +96,20 @@ class Oscilloscope(object):
                       10: ('+/- 500mV', 0.00390625, 0.25)
                      }
 
-    CAL_FREQUENCYS = {
-                      105: ( " 50 Hz",     50 ),
-                      106: ( " 60 Hz",     60 ),
-                      110: ( "100 Hz",    100 ),
-                      120: ( "200 Hz",    200 ),
-                      150: ( "500 Hz",    500 ),
-                        1: (  "1 kHz",   1000 ),
-                        2: (  "2 kHz",   2000 ),
-                        5: (  "5 kHz",   5000 ),
-                       10: ( "10 kHz",  10000 ),
-                       20: ( "20 kHz",  20000 ),
-                       50: ( "50 kHz",  50000 ),
-                      100: ("100 kHz", 100000 )
-                     }
+#    CAL_FREQUENCYS = {
+#                      105: ( " 50 Hz",     50 ),
+#                      106: ( " 60 Hz",     60 ),
+#                      110: ( "100 Hz",    100 ),
+#                      120: ( "200 Hz",    200 ),
+#                      150: ( "500 Hz",    500 ),
+#                        1: (  "1 kHz",   1000 ),
+#                        2: (  "2 kHz",   2000 ),
+#                        5: (  "5 kHz",   5000 ),
+#                       10: ( "10 kHz",  10000 ),
+#                       20: ( "20 kHz",  20000 ),
+#                       50: ( "50 kHz",  50000 ),
+#                      100: ("100 kHz", 100000 )
+#                     }
 
 
     # defaults to 6022BE with the possibility to supply a non standard VID/PID combination
@@ -887,24 +887,16 @@ class Oscilloscope(object):
         return True
 
 
-    def set_calibration_frequency(self, freq_index, timeout=0):
+    def set_calibration_frequency(self, cal_freq, timeout=0):
         """
         Set the frequency of the calibration output.
-        :param rate_index: The rate_index. These are the keys for the CAL_FREQUNCY dict for the Oscilloscope object.
-                           Common rate_index values and actual sample rate per channel:
-                          105 <->  50 Hz
-                          106 <->  60 Hz
-                          110 <-> 100 Hz
-                          120 <-> 200 Hz
-                          150 <-> 500 Hz
-                            1 <->   1 kHz
-                            2 <->   2 kHz
-                            5 <->   5 kHz
-                           10 <->  10 kHz
-                           20 <->  20 kHz
-                           50 <->  50 kHz
-                          100 <-> 100 kHz
-                           Other values are not supported.
+        :param cal_freq: The frequncy coded into one byte for the Oscilloscope object.
+          0 -> 100 Hz (be compatible with sigrok FW)
+          1..100 -> 1..100 kHz
+          101..102 -> do not use
+          103 -> 32 Hz (lowest possible calfreq due to 16bit HW counter)
+          104..200 -> 40..1000 Hz ( calfreq = 10*(freq-100) )
+          201..255 -> 100..5500 Hz ( calfreq = 100*(freq-200) )
         :param timeout: (OPTIONAL).
         :return: True if successful. This method may assert or raise various libusb errors if something went wrong.
         """
@@ -914,7 +906,7 @@ class Oscilloscope(object):
         bytes_written = self.device_handle.controlWrite(0x40, self.SET_CAL_FREQ_REQUEST,
                                                         self.SET_CAL_FREQ_VALUE,
                                                         self.SET_CAL_FREQ_INDEX,
-                                                        pack("B", freq_index), timeout=timeout)
+                                                        pack("B", cal_freq), timeout=timeout)
         assert bytes_written == 0x01
         return True
 

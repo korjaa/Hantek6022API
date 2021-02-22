@@ -253,98 +253,32 @@ static BOOL set_samplerate( BYTE rate ) {
 // integer dividers of 2e6 Hz will be exact
 // calibration frequency is coded into one byte parameter freq:
 // freq == 0   -> 100 Hz (compatibility to old sigrok coding)
+// freq == 103 -> 32 Hz (lowest possible frequency due to 16bit HW timer2)
 // freq 1..100 -> freq in kHz
-// freq > 100  -> (value-100)*10 is freq in Hz
+// freq 101..200  -> (value-100)*10 is freq in Hz
+// freq 201..255  -> (value-200)*100 is freq in Hz
 // e.g. 105 -> 50 Hz, 20 -> 20 kHz
 //
 static BOOL set_calibration_pulse( BYTE freq ) {
     long frequency;
     if ( 0 == freq ) // special case for 100 Hz (sigrok)
-        frequency = 100L;
-    else if ( freq <= 100 ) // 1..100 kHz
+        frequency = 100;
+    else if ( freq <= 100 ) // 1..100 -> 1..100 kHz
         frequency = freq * 1000L;
-    else // 10, 20, 30 ... 990 Hz
+    else if ( freq == 103 ) // special case for 32 Hz
+        frequency = 32;
+    else if ( freq <= 200 ) // 101..200 -> 10, 20, 30 ... 1000 Hz
         frequency = ( freq - 100 ) * 10L;
-    if ( frequency < 40L || frequency > 100000L )
-        return FALSE;
+    else // 201..255 -> 100, 200, 300 ... 5500 Hz
+        frequency = ( freq - 200 ) * 100L;
+    if ( frequency < 32L || frequency > 100000L )
+        return FALSE; // out of range
     ledinit = frequency / 2;
     long rcap = -2e6L / frequency;
     RCAP2L = rcap & 0xff;
     RCAP2H = ( rcap & 0xff00 ) >> 8;
     return TRUE;
 }
-
-
-#if 0
-static BOOL set_calibration_pulse( BYTE freq ) {
-    switch ( freq ) {
-    case 105: // 50 Hz
-        ledinit = 25;
-        RCAP2L = -40000L & 0xff;
-        RCAP2H = ( -40000L & 0xff00 ) >> 8;
-        break;
-    case 106: // 60.001 Hz
-        ledinit = 30;
-        RCAP2L = -33333L & 0xff;
-        RCAP2H = ( -33333L & 0xff00 ) >> 8;
-        break;
-    case 0:
-    case 110: // 100 Hz
-        ledinit = 50;
-        RCAP2L = -20000 & 0xff;
-        RCAP2H = ( -20000 & 0xff00 ) >> 8;
-        break;
-    case 120: // 200 Hz
-        ledinit = 100;
-        RCAP2L = -10000 & 0xff;
-        RCAP2H = ( -10000 & 0xff00 ) >> 8;
-        break;
-    case 150: // 500 Hz
-        ledinit = 250;
-        RCAP2L = -4000 & 0xff;
-        RCAP2H = ( -4000 & 0xff00 ) >> 8;
-        break;
-    case 1: // 1kHz
-        ledinit = 500;
-        RCAP2L = -2000 & 0xff;
-        RCAP2H = ( -2000 & 0xff00 ) >> 8;
-        break;
-    case 2: // 2kHz
-        ledinit = 1000;
-        RCAP2L = -1000 & 0xff;
-        RCAP2H = ( -1000 & 0xff00 ) >> 8;
-        break;
-    case 5: // 5kHz
-        ledinit = 2500;
-        RCAP2L = -400 & 0xff;
-        RCAP2H = ( -400 & 0xff00 ) >> 8;
-        break;
-    case 10: // 10kHz
-        ledinit = 5000;
-        RCAP2L = ( BYTE )( -200 & 0xff );
-        RCAP2H = ( -200 & 0xff00 ) >> 8;
-        break;
-    case 20: // 20kHz
-        ledinit = 10000;
-        RCAP2L = ( BYTE )( -100 & 0xff );
-        RCAP2H = ( -100 & 0xff00 ) >> 8;
-        break;
-    case 50: // 50kHz
-        ledinit = 25000;
-        RCAP2L = ( BYTE )( -40 & 0xff );
-        RCAP2H = ( -40 & 0xff00 ) >> 8;
-        break;
-    case 100: // 100kHz
-        ledinit = 50000;
-        RCAP2L = ( BYTE )( -20 & 0xff );
-        RCAP2H = ( -20 & 0xff00 ) >> 8;
-        break;
-    default:
-        return FALSE;
-    }
-    return TRUE;
-}
-#endif
 
 
 /* Set *alt_ifc to the current alt interface for ifc. */
