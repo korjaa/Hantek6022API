@@ -1,6 +1,6 @@
 # Hantek6022API
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/Ho-Ro/Hantek6022API?branch=master&svg=true)](https://ci.appveyor.com/project/Ho-Ro/Hantek6022API/branch/master)
+[![Build_Check](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml/badge.svg)](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/ho-ro/hantek6022api/badge)](https://www.codefactor.io/repository/github/ho-ro/hantek6022api)
 [![Stability: Active](https://masterminds.github.io/stability/active.svg)](https://masterminds.github.io/stability/active.html)
 
@@ -35,9 +35,8 @@ After you've done this, the scope should automatically come up with the correct 
 without being root user.
 
 The following instructions are tested with Debian (*stretch* and *buster*)
-and are executed also automatically under Ubuntu (*1804*) - have a look
-at the [appveyor build status](https://ci.appveyor.com/project/Ho-Ro/Hantek6022API/branch/master)
-and the [related config file](https://github.com/Ho-Ro/Hantek6022API/blob/master/appveyor.yml).
+and are executed also automatically under Ubuntu (*2004*) - have a look
+at the [GitHub Action](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml).
 
 To compile the custom firmware you have to install (as root) the *small devices c compiler* `sdcc` and the tool `pkgconf`:
 

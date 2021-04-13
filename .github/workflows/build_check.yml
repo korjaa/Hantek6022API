@@ -2,7 +2,7 @@
 
 name: Build_Check
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push
   push:
@@ -14,12 +14,12 @@ on:
 jobs:
   # This workflow contains a single job called "build_check"
   build_check:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-18.04
+    # The type of runner that the job will run on - needs ubuntu-20.04 to get a recent sdcc
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2

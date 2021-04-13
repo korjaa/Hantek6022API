@@ -183,7 +183,7 @@ while True:
     if to_go <=  - downsample * 256 * tick:
         break
     if int( to_go ) != lastsec:
-        if None == lastsec:
+        if None is lastsec:
             sys.stderr.write( "\rCapturing " + str(sample_time) + " seconds ...    " )
         elif lastsec > 0:
             sys.stderr.write( "\rCapturing " + str(lastsec) + " seconds ...    " )
