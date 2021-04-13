@@ -37,6 +37,7 @@ without being root user.
 The following instructions are tested with Debian (*stretch* and *buster*)
 and are executed also automatically under Ubuntu (*2004*) - have a look
 at the [GitHub Action](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml).
+On each successful run a debian package is available under *Artifacts*.
 
 To compile the custom firmware you have to install (as root) the *small devices c compiler* `sdcc` and the tool `pkgconf`:
 
@@ -56,7 +57,7 @@ To build the custom firmware run `make` in the top level directory:
 
 To build and install the python package you have to install some more .deb packages
 
-    sudo apt install python3-setuptools python3-libusb1
+    sudo apt install python3-setuptools python3-libusb1 libusb-1.0 libusb-1.0-0-dev;
 
 Build and install the python modules and the firmware (e.g. into /usr/local/lib/python3.5/dist-packages/Python-Hantek...).
 
@@ -85,7 +86,7 @@ which calls
 
 for the latest debian package. This installs the python modules together with some utility programs.
 
-With the device plugged in, run `upload_6022_firmware.py`  (installed into `/usr/local/bin`) to bootstrap the scope for use. 
+With the device plugged in, run `upload_6022_firmware.py` (installed into `/usr/local/bin`) to bootstrap the scope for use. 
 You can then write your own programs, or look at the current channel 1 scope trace via `python examples/scopevis.py`.
 
 ## It even works under Windows
