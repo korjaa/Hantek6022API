@@ -7,6 +7,7 @@ usage: capture_6022.py [-h] [-d DOWNSAMPLE] [-o OUTFILE] [-r RATE] [-t TIME]
 
 optional arguments:
   -h, --help            show this help message and exit
+  --decimalcomma        use comma as decimal separator
   -d, --downsample DOWNSAMPLE
                         downsample 256 x DOWNSAMPLE
   -o OUTFILE, --outfile OUTFILE
@@ -27,6 +28,8 @@ import sys
 ap = argparse.ArgumentParser()
 #ap.add_argument( "-c", "--channels", type = int, default = 2,
 #    help="how many channels to capture, default: 2" )
+ap.add_argument( "--decimalcomma", action = "store_true",
+    help="use comma as decimal separator" )
 ap.add_argument( "-d", "--downsample", type = int, default = 0,
     help="downsample 256 x DOWNSAMPLE" )
 ap.add_argument( "-o", "--outfile", type = argparse.FileType("w"),
@@ -46,13 +49,14 @@ options = ap.parse_args()
 # settings #
 ############
 #
-channels    = 2
-downsample  = options.downsample
-sample_rate = options.rate
-sample_time = options.time
-ch1gain     = options.ch1
-ch2gain     = options.ch2
-outfile     = options.outfile or sys.stdout
+channels     = 2
+decimalcomma = options.decimalcomma
+downsample   = options.downsample
+sample_rate  = options.rate
+sample_time  = options.time
+ch1gain      = options.ch1
+ch2gain      = options.ch2
+outfile      = options.outfile or sys.stdout
 
 valid_sample_rates = ( 20, 50, 64, 100 )
 valid_gains = ( 1, 2, 5, 10 )
@@ -152,13 +156,19 @@ def pcb( ch1_data, ch2_data ):
             pcb.av1 = pcb.av1 / downsample
             pcb.av2 = pcb.av2 / downsample
             if pcb.timestep < sample_time:
-                outfile.write( "{:<10.6g}, {:< 10.4g}, {:< 10.4g}\n".format( pcb.timestep, pcb.av1, pcb.av2 ) )
+                line = "{:>10.5f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, pcb.av1, pcb.av2 )
+                if decimalcomma:
+                    line=line.replace( ',', ';' ).replace( '.', ',' )
+                outfile.write( line )
             pcb.av1 = pcb.av2 = 0
             pcb.timestep = pcb.timestep + tick * size * downsample
     else: # write out every sample
         for ch1_value, ch2_value in zip( ch1_scaled, ch2_scaled ): # merge CH1 & CH2
             if pcb.timestep < sample_time:
-                outfile.write( "{:<10.6g}, {:< 10.4g}, {:< 10.4g}\n".format( pcb.timestep, ch1_value, ch2_value ) )
+                line = "{:>10.5f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, ch1_value, ch2_value )
+                if decimalcomma:
+                    line=line.replace( ',', ';' ).replace( '.', ',' )
+                outfile.write( line )
             pcb.timestep = pcb.timestep + tick
 #
 ##########################################################
@@ -203,7 +213,10 @@ scope.close_handle()
 
 if downsample: # calculate the effective sample rate
     sample_rate = sample_rate / 256 / downsample
-sys.stderr.write( "\rCaptured data for {} second(s) @ {} S/s\n".format( sample_time, sample_rate) )
+line = "\rCaptured data for {} second(s) @ {} S/s\n".format( sample_time, sample_rate)
+if decimalcomma:
+    line=line.replace( ',', ';' ).replace( '.', ',' )
+sys.stderr.write( line )
 
 # average of all samples (DC)
 dc1 = dc1 / totalsize
@@ -218,7 +231,13 @@ ac2 = math.sqrt( rms2 - dc2 * dc2 )
 rms1 = math.sqrt( rms1 )
 rms2 = math.sqrt( rms2 )
 
-sys.stderr.write( "CH1: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc1, ac1, rms1 ) )
-sys.stderr.write( "CH2: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc2, ac2, rms2 ) )
+line = "CH1: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc1, ac1, rms1 )
+if decimalcomma:
+    line=line.replace( ',', ';' ).replace( '.', ',' )
+sys.stderr.write( line )
+line = "CH2: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc2, ac2, rms2 )
+if decimalcomma:
+    line=line.replace( ',', ';' ).replace( '.', ',' )
+sys.stderr.write( line )
 
 outfile.close()
