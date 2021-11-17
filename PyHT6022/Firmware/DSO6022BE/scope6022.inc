@@ -77,9 +77,17 @@ void timer2_isr( void ) __interrupt TF2_ISR {
     /* Toggle the probe calibration pin. */
     TOGGLE_CALIBRATION_PIN();
 #ifdef LED_RED_TOGGLE
-    if ( ledcounter && --ledcounter == 0 ) { // led timed out
-        ledcounter = ledinit;                // reload
-        LED_RED_TOGGLE();
+    // Avoid nasty sdcc 4.0 REGRESSION:
+    // Do not use "if ( ledcounter && --ledcounter == 0 )"
+    // Write separate statements!
+    // Otherwise the ISR uses registers for reload -> additional push/pop ...
+    // ... more cycles, fails for 100 kHz
+    if ( ledcounter ) {
+        --ledcounter;
+        if ( ledcounter == 0 ) {  // led timed out?
+            ledcounter = ledinit; // reload
+            LED_RED_TOGGLE();
+        }
     }
 #endif
     TF2 = 0;
