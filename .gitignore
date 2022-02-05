@@ -8,8 +8,11 @@ fx2upload
 # Packages
 *.egg
 *.egg-info
-dist
+hantek6022api*.tar.gz
+*.deb
 build
+dist
+deb_dist
 eggs
 parts
 bin
@@ -32,14 +35,6 @@ nosetests.xml
 # Other test results
 model*.conf
 
-# Translations
-*.mo
-
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
-
 # Backups
 *~
 *.orig
@@ -48,9 +43,3 @@ model*.conf
 *.old
 *.diff
 
-# Debian
-doc-pak
-*.deb
-backup-*.tgz
-
-*.out

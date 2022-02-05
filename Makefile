@@ -31,26 +31,25 @@ fx2upload:
 	cd fx2upload && make
 
 
-.PHONY: install
-install: all
-	-rm -rf build/*
-	-rm -rf dist/*
-	python3 setup.py install
-	if [ -d /etc/udev/rules.d/ ]; then cp 60-hantek6022api.rules /etc/udev/rules.d/; fi
-	install examples/*_6022*.py /usr/local/bin
-	install fx2upload/fx2upload /usr/local/bin
+# create a debian binary package
+.PHONY:	deb
+deb:	all
+	git log --pretty="%cs: %s [%h]" > CHANGELOG
+	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command bdist_deb
 
 
-.PHONY: deb
-deb:
-	fakeroot checkinstall --default --requires python3-libusb1 --install=no --backup=no --deldoc=yes
+# create a debian source package
+.PHONY:	dsc
+dsc:	all
+	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command sdist_dsc
 
 
 .PHONY: debinstall
 debinstall: deb
-	sudo dpkg -i `ls hantek6022api_*.deb | tail -1`
+	sudo dpkg -i `ls deb_dist/hantek6022api_*.deb | tail -1`
 
 
+# remove all compiler artefacts
 .PHONY: clean
 clean:
 	-rm *~ .*~
@@ -63,6 +62,14 @@ clean:
 	( cd fx2upload && make clean )
 
 
+# remove all package build artefacts
+.PHONY:	distclean
+distclean: clean
+	python setup.py clean
+	rm -rf *~ .*~ deb_dist dist *.tar.gz *.egg* build tmp
+
+
+# transfer the needed hex files to OpenHantek
 .PHONY: xfer
 xfer: all
 	cp $(DSO6021)/dso6021-firmware.hex \

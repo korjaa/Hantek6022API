@@ -1,0 +1,16 @@
+# the actively developed fw
+include PyHT6022/Firmware/DDS120/*-firmware.hex
+include PyHT6022/Firmware/DSO60*/*-firmware.hex
+
+# the legacy fw (stock & modded)
+include PyHT6022/Firmware/*/*.ihex
+
+# tool scripts
+include examples/calibrate_6022.py
+include examples/capture_6022.py
+include examples/upload_6022_firmware_from_hex.py
+include examples/upload_6022_firmware.py
+include fx2upload/fx2upload
+
+# the udev rules to access USB
+include udev/60-hantek6022api.rules
