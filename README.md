@@ -55,22 +55,9 @@ To build the custom firmware run `make` in the top level directory:
 
     make
 
-To build and install the python package you have to install some more .deb packages
+To build a simple debian package (this is the preferred installation procedure) you have to install some more .deb packages
 
-    sudo apt install python3-setuptools python3-libusb1 libusb-1.0 libusb-1.0-0-dev;
-
-Build and install the python modules and the firmware (e.g. into /usr/local/lib/python3.5/dist-packages/Python-Hantek...).
-
-    sudo python3 setup.py install
-
-Or use the Makefile:
-
-    sudo make install
-
-To build a simple debian package (this is the preferred installation procedure) you need two more packages:
-(checkinstall is not available in *buster*, but you can use the package from *buster-backports*, *stretch*, *bullseye* or *sid*):
-
-    sudo apt install checkinstall fakeroot
+    sudo apt install python3-setuptools python3-stdeb dh-python python3-libusb1 sdcc libusb-1.0 libusb-1.0-0-dev;
 
 Create a debian package:
 
@@ -82,11 +69,14 @@ that can be installed with
 
 which calls
 
-    sudo dpkg -i hantek6022api_...
+    sudo dpkg -i `ls deb_dist/hantek6022api_*.deb | tail -1`
 
 for the latest debian package. This installs the python modules together with some utility programs.
+The installed programs can also be uninstalled cleanly with
 
-With the device plugged in, run `upload_6022_firmware.py` (installed into `/usr/local/bin`) to bootstrap the scope for use. 
+    sudo dpkg -P hantek6022api
+
+With the device plugged in, run `upload_6022_firmware.py` (installed into `/usr/bin`) to bootstrap the scope for use.
 You can then write your own programs, or look at the current channel 1 scope trace via `python examples/scopevis.py`.
 
 ## It even works under Windows
