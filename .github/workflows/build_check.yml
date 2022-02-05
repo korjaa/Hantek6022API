@@ -43,8 +43,8 @@ jobs:
       - name: Upload_Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: hantek6022api_amd64_${{github.run_number}}
-          path: hantek6022api_*_amd64.deb
+          name: hantek6022api_all_${{github.run_number}}
+          path: deb_dist/hantek6022api_*_all.deb
 
 
       # Upload the deb package as release asset if the commit was tagged
@@ -53,6 +53,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
-          files: hantek6022api_*_amd64.deb
+          files: deb_dist/hantek6022api_*_all.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
