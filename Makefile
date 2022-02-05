@@ -31,16 +31,21 @@ fx2upload:
 	cd fx2upload && make
 
 
+# update the changelog from git
+.PHONY:	changelog
+changelog:
+	git log --pretty="%cs: %s [%h]" > CHANGELOG
+
+
 # create a debian binary package
 .PHONY:	deb
-deb:	all
-	git log --pretty="%cs: %s [%h]" > CHANGELOG
+deb:	all changelog
 	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command bdist_deb
 
 
 # create a debian source package
 .PHONY:	dsc
-dsc:	all
+dsc:	all changelog
 	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command sdist_dsc
 
 

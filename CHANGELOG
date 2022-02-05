@@ -1,3 +1,5 @@
+2022-02-05: fix github workflow [5324872]
+2022-02-05: replace "checkinstall" by "python3-stdeb" in github workflow setup [46962d4]
 2022-02-05: change debian build from "checkinstall" to "stdeb" tool [de61c32]
 2021-11-17: Fix #12: Avoid nasty sdcc 4.0 regression [a9b362f]
 2021-08-22: fixed sdcc_debian_old/sdcc_3.8.0.tgz package [3884370]

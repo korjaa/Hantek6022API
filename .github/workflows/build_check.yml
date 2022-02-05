@@ -29,7 +29,7 @@ jobs:
       - name: Setup_Build
         run:
           sudo apt update;
-          sudo apt-get install --quiet --yes fakeroot python3-setuptools python3-stdeb python3-libusb1 sdcc libusb-1.0 libusb-1.0-0-dev;
+          sudo apt-get install --quiet --yes fakeroot python3-setuptools python3-stdeb dh-python python3-libusb1 sdcc libusb-1.0 libusb-1.0-0-dev;
           git submodule update --init --recursive;
 
 
