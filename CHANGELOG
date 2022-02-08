@@ -1,3 +1,7 @@
+2022-02-05: Merge branch 'main' of github.com:Ho-Ro/Hantek6022API fix last commit [078dffd]
+2022-02-05: fix github workflow [0966f8b]
+2022-02-05: fix github workflow [5a50a99]
+2022-02-05: more github workflow setup [0c97913]
 2022-02-05: fix github workflow [5324872]
 2022-02-05: replace "checkinstall" by "python3-stdeb" in github workflow setup [46962d4]
 2022-02-05: change debian build from "checkinstall" to "stdeb" tool [de61c32]

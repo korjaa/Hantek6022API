@@ -39,27 +39,26 @@ changelog:
 
 # create a debian binary package
 .PHONY:	deb
-deb:	all changelog
+deb:	all changelog distclean
 	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command bdist_deb
+	ln `ls deb_dist/hantek6022api_*.deb | tail -1` .
 
 
 # create a debian source package
 .PHONY:	dsc
-dsc:	all changelog
+dsc:	all changelog distclean
 	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command sdist_dsc
 
 
 .PHONY: debinstall
 debinstall: deb
-	sudo dpkg -i `ls deb_dist/hantek6022api_*.deb | tail -1`
+	sudo dpkg -i hantek6022api_*.deb
 
 
 # remove all compiler artefacts
 .PHONY: clean
 clean:
 	-rm *~ .*~
-	-rm -rf build/*
-	-rm -rf dist/*
 	( cd $(DSO6021) && make clean )
 	( cd $(DSO6022BE) && make clean )
 	( cd $(DSO6022BL) && make clean )
@@ -69,9 +68,9 @@ clean:
 
 # remove all package build artefacts
 .PHONY:	distclean
-distclean: clean
+distclean:
 	python setup.py clean
-	rm -rf *~ .*~ deb_dist dist *.tar.gz *.egg* build tmp
+	-rm -rf *~ .*~ deb_dist dist *.tar.gz *.egg* *.deb build tmp
 
 
 # transfer the needed hex files to OpenHantek

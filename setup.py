@@ -1,14 +1,18 @@
-__author__ = 'Ho-Ro'
-__version__ = '2.9'
+__version__ = '2.9.1'
+
 
 from setuptools import setup
 import os
 
 setup(
     name='hantek6022api',
-    author=__author__,
+    author='Ho-Ro',
     author_email='horo@localhost',
-    description='A Python API and FW for using the Hantek 6022BE USB Oscilloscope in Linux',
+    description='Python API and better FW for Hantek 6022 USB Oscilloscopes',
+    long_description=
+'''A Python API, tools for calibration, data capturing and visualisation
+as well as an improved FW for Hantek 6022 USB Oscilloscopes''',
+    platforms=['all'],
     version=__version__,
     license='GPLv2',
     url='https://github.com/Ho-Ro/Hantek6022API',
@@ -22,10 +26,14 @@ setup(
                                os.path.join('Firmware', 'stock', 'stock_fw.ihex'),]
     },
     include_package_data=True,
-    install_requires=['libusb1'],
+    install_requires=['libusb1', 'matplotlib'],
     data_files=[
         ("/usr/bin/", ["examples/calibrate_6022.py",
                        "examples/capture_6022.py",
+                       "examples/plot_from_capture_6022.py",
+                       "examples/fft_from_capture_6022.py",
+                       "examples/fft_ft_from_capture_6022.py",
+                       "examples/set_cal_out_freq_6022.py",
                        "examples/upload_6022_firmware_from_hex.py",
                        "examples/upload_6022_firmware.py",
                        "fx2upload/fx2upload"]

@@ -890,23 +890,34 @@ class Oscilloscope(object):
     def set_calibration_frequency(self, cal_freq, timeout=0):
         """
         Set the frequency of the calibration output.
-        :param cal_freq: The frequncy coded into one byte for the Oscilloscope object.
+        :param cal_freq: 32 Hz <= cal_freq <= 100 kHz
+        The frequency will be coded into one byte for the Oscilloscope object.
           0 -> 100 Hz (be compatible with sigrok FW)
           1..100 -> 1..100 kHz
           101..102 -> do not use
           103 -> 32 Hz (lowest possible calfreq due to 16bit HW counter)
-          104..200 -> 40..1000 Hz ( calfreq = 10*(freq-100) )
-          201..255 -> 100..5500 Hz ( calfreq = 100*(freq-200) )
+          104..200 -> 40..1000 Hz, step = 10 Hz ( calfreq = 10*(freq-100) )
+          201..255 -> 100..5500 Hz, step = 100 Hz ( calfreq = 100*(freq-200) )
         :param timeout: (OPTIONAL).
         :return: True if successful. This method may assert or raise various libusb errors if something went wrong.
         """
+        if cal_freq < 32 or cal_freq > 100000:
+            return False
+
+        if cal_freq < 1000:
+            cal_freq_byte = int(cal_freq / 10) + 100 # 103...199 -> 32...990 Hz
+        elif cal_freq < 5600:
+            cal_freq_byte = int(cal_freq / 100) + 200 # 201...255 -> 100...5500 Hz
+        else:
+            cal_freq_byte = ( cal_freq / 1000 ) # 1...100 -> 1...100 kHz
+
         if not self.device_handle:
             assert self.open_handle()
 
         bytes_written = self.device_handle.controlWrite(0x40, self.SET_CAL_FREQ_REQUEST,
                                                         self.SET_CAL_FREQ_VALUE,
                                                         self.SET_CAL_FREQ_INDEX,
-                                                        pack("B", cal_freq), timeout=timeout)
+                                                        pack("B", cal_freq_byte), timeout=timeout)
         assert bytes_written == 0x01
         return True
 

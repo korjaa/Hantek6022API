@@ -34,6 +34,7 @@ nosetests.xml
 
 # Other test results
 model*.conf
+*.csv
 
 # Backups
 *~

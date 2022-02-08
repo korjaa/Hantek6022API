@@ -8,14 +8,17 @@ This repo is based on the excellent work of [Robert](https://github.com/rpcope1/
 and [Jochen](https://github.com/jhoenicke/Hantek6022API) 
 and focusses mainly on Hantek6022BE/BL under Linux (development system: debian buster).
 
-__Hantek6022BE custom firmware is feature complete and usable for [OpenHantek6022](https://github.com/OpenHantek/OpenHantek6022)__
+## Hantek 6022 Firmware
 
-__Hantek6022BL custom firmware is feature complete but not as intensively tested as the BE version__
+* __Hantek6022BE custom firmware is feature complete and usable for [OpenHantek6022](https://github.com/OpenHantek/OpenHantek6022)__
 
-<img alt="Scope Visualisation Example" width="100%" src="HT6022BEBuiltInOscillator.png">
+* __Hantek6022BL custom firmware is feature complete but not as intensively tested as the BE version__
 
+## Hantek 6022 Python API for Linux
 
-Hantek 6022 Python API for Linux. This is a API for Python for the
+<img alt="Scope Visualisation Example" width="100%" src="plot_from_capture.png">
+
+This is a API for Python for the
 ultra-cheap, reasonably usable (and hackable) 6022 DSO, with a libusb implementation via libusb1 for Linux.
 
 The scope can be accessed by instantiating an oscilloscope object with the correct scopeid (always 0 for one scope
@@ -76,8 +79,9 @@ The installed programs can also be uninstalled cleanly with
 
     sudo dpkg -P hantek6022api
 
-With the device plugged in, run `upload_6022_firmware.py` (installed into `/usr/bin`) to bootstrap the scope for use.
-You can then write your own programs, or look at the current channel 1 scope trace via `python examples/scopevis.py`.
+With the device plugged in, run `upload_firmware_6022.py` once to bootstrap the scope for use.
+You can then look at the scope traces via `capture_6022.py -t 0.01 | plot_from_capture_6022.py`,
+or write your own programs - look at the programs in `examples` as a start.
 
 ## It even works under Windows
 
@@ -99,17 +103,25 @@ You can then write your own programs, or look at the current channel 1 scope tra
 You can also use the `libusb-1.0.dll` file from the
 [libusb-1.0 version](https://github.com/OpenHantek/OpenHantek6022/blob/master/cmake/libusb-1.0.21-win.7z)
 that is provided by [OpenHantek6022](https://github.com/OpenHantek/OpenHantek6022).
-The `libusb-1.0.dll` file should be found in the PATH, e.g. it could be in the `python.exe` directory or together with the example programs in the same directory.
+The `libusb-1.0.dll` file should be found in the PATH, e.g. it could be in the `python.exe` directory
+or together with the example programs in the same directory.
 
 YMMV, I checked it only with a bare-bones virtual Win7 install under Debian.
 
 ## Create calibration values for OpenHantek
 
-As you can see in the trace above the scope has a quite big zero point error (the measured real signal switches between 0.0 V and 2.0 V) - also the gain is defined by resistors with 5% tolerance in the frontend - in best case by two resistors R27/17 & R31/21 in the chain (x1), in worst case by four resistors R27/17 & R31/21 & R32/23 & R18/19/22 in the chain (x2, x5, x10). 
+<img alt="Uncalibrated scope data" width="50%" src="HT6022BE_uncalibrated.png">
+
+As you can see in the trace above the scope has a quite big zero point error (the measured real signal
+switches between 0.0 V and 2.0 V) - also the gain is defined by resistors with 5% tolerance
+in the frontend - in best case by two resistors R27/17 & R31/21 in the chain (x1),
+in worst case by four resistors R27/17 & R31/21 & R32/23 & R18/19/22 in the chain (x2, x5, x10).
 
 -> https://github.com/Ho-Ro/Hantek6022API/blob/master/hardware/6022BE_Frontend_with_pinout.jpg 
 
-In the end you can have a statistical gain tolerance of about 7%...10% -> RSS analysis (root sum square, square all tolerances, sum them up und calculate the root of this sum) gives an expected tolerance range:
+In the end you can have a statistical gain tolerance of about 7%...10% -> RSS analysis
+(root sum square, square all tolerances, sum them up und calculate the root of this sum)
+gives an expected tolerance range:
 
 - sqrt( 2 * (5%)² ) = 1.4 * 5% = 7% for gain step x1
 - sqrt( 4 * (5%)² ) = 2 * 5% = 10% for all other gains
@@ -121,7 +133,7 @@ or `%APPDATA%\OpenHantek\modelDSO6022.ini` for Windows.
 
 Step 2 uses the factory offset calibration values in eeprom.
 Out of the box only offset values are contained in eeprom,
-the program `calibrate_6022.py` (installed in `/usr/local/bin`) allows to update these values in case the offset has changed over time.
+the program `calibrate_6022.py` (installed in `/usr/bin`) allows to update these values in case the offset has changed over time.
 
 Program to calibrate offset and gain of Hantek 6022BE/BL
 1. Measure offset at low and high speed for the four gain steps x10, x5, x2, x1
@@ -179,10 +191,10 @@ Requested Voltage | Applied Voltage | Comment
 
 ## Use the device as a data logger ##
 
-The program `capture_6022.py` (also in `/usr/local/bin/`) allows to capture both channels over a long time.
+The program `capture_6022.py` (also in `/usr/bin/`) allows to capture both channels over a long time.
 
-The 256 x downsampling option increases the SNR and effective resolution (8bit -> at least 12 bit) and allows very long time recording.
-The program uses the offset and gain calibration from EEPROM.
+The 256 x downsampling option increases the SNR and effective resolution (8bit -> at least 12 bit)
+and allows very long time recording. The program uses the offset and gain calibration from EEPROM.
 It writes the captured data into stdout or an outfile and calculates DC, AC and RMS of the data.
 
     usage: capture_6022.py [-h] [-d DOWNSAMPLE] [-o OUTFILE] [-r RATE] [-t TIME]
@@ -198,6 +210,20 @@ It writes the captured data into stdout or an outfile and calculates DC, AC and 
       -t TIME, --time TIME  capture time in seconds (default: 1.0)
       -x CH1, --ch1 CH1     gain of channel 1 (1, 2, 5, 10, default: 1)
       -y CH2, --ch2 CH2     gain of channel 2 (1, 2, 5, 10, default: 1)
+
+
+The program `plot_from_capture_6022.py` takes the captured data (either from stdin
+or from a file named as 1st command line argument) and presents them as seen on top of this page.
+
+    usage: plot_from_capture_6022.py [-h] [-i INFILE] [-o OUTFILE] [-c CHANNELS] [-s]
+
+    optional arguments:
+    -h, --help              show this help message and exit
+    -i INFILE, --infile INFILE
+                            read the data from INFILE
+    -c CHANNELS, --channels CHANNELS
+                            show one (CH1) or two (CH1, CH2) channels, default: 2)
+    -s, --spectrum          display the spectrum of the samples
 
 
 ## Other neat things you can do
