@@ -37,7 +37,7 @@
 ;;
 
 ; Firmware version and USB power requirement
-VER = 0x0902	; FW version 0x0209
+VER = 0x1002	; FW version 0x0210
 POWER = 500/2	; Max 500 mA (1=2mA)
 
 

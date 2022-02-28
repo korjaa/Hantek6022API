@@ -20,9 +20,14 @@ ap.add_argument( "-i", "--infile", type = argparse.FileType("r"),
     help="read the data from INFILE" )
 ap.add_argument( "-c", "--channels", type = int, default = 2,
     help="show one (CH1) or two (CH1, CH2) channels, default: 2)" )
-ap.add_argument( "-s", "--spectrum", action = 'store_true', default = False,
-    help="display the spectrum of the samples" )
-
+ap.add_argument( "-s", '--spectrum',
+    dest = 'max_freq',
+    const = -1,
+    default = 0,
+    action = 'store',
+    nargs = '?',
+    type = int,
+    help = "display the spectrum of the samples, optional up to MAX_FREQ" )
 options = ap.parse_args()
 
 infile = options.infile or sys.stdin
@@ -48,15 +53,19 @@ fs = 1 / ( time[1] - time[0] )
 
 if options.channels == 2:
 # Stack plots in two rows, one or two columns, sync their time and frequency axes
-    if options.spectrum:
+    if options.max_freq:
         fig, ( (v1, sp1), (v2, sp2) ) = plt.subplots( 2, 2, sharex = 'col' )
         # Channel 1 spectrum
         sp1.set_title( 'Spectrum 1' )
         sp1.magnitude_spectrum( ch1, fs, scale = 'dB', color = 'C1' )
+        if options.max_freq > 0:
+            sp1.axes.set_xlim( [ 0, options.max_freq ] )
         sp1.grid( True )
         # Channel 2 spectrum
         sp2.set_title( 'Spectrum 2' )
         sp2.magnitude_spectrum( ch2, fs, scale = 'dB', color = 'C0' )
+        if options.max_freq > 0:
+            sp1.axes.set_xlim( [ 0, options.max_freq ] )
         sp2.grid( True )
 
     else:
@@ -75,11 +84,13 @@ if options.channels == 2:
 
 else:
 # Plot in one rows, one or two columns
-    if options.spectrum:
+    if options.max_freq:
         fig, ( v1, sp1 ) = plt.subplots( 1, 2 )
         # Channel 1 spectrum
         sp1.set_title( 'Spectrum 1' )
         sp1.magnitude_spectrum( ch1, fs, scale = 'dB', color = 'C1' )
+        if options.max_freq > 0:
+            sp1.axes.set_xlim( [ 0, options.max_freq ] )
         sp1.grid( True )
     else:
         fig, v1 = plt.subplots( 1 )
@@ -92,6 +103,6 @@ else:
 
 
 fig.tight_layout()
-
+# fig.savefig('test.jpg')
 # And display everything
 plt.show()

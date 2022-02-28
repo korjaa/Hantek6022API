@@ -12,7 +12,7 @@ optional arguments:
                         downsample 256 x DOWNSAMPLE
   -o OUTFILE, --outfile OUTFILE
                         write the data into OUTFILE
-  -r RATE, --rate RATE  sample rate in kS/s (20, 50, 64, 100, default: 20)
+  -r RATE, --rate RATE  sample rate in kS/s (20, 50, 64, 100, 128, default: 20)
   -t TIME, --time TIME  capture time in seconds (default: 1.0)
   -x CH1, --ch1 CH1     gain of channel 1 (1, 2, 5, 10, default: 1)
   -y CH2, --ch2 CH2     gain of channel 2 (1, 2, 5, 10, default: 1)
@@ -35,7 +35,7 @@ ap.add_argument( "-d", "--downsample", type = int, default = 0,
 ap.add_argument( "-o", "--outfile", type = argparse.FileType("w"),
     help="write the data into OUTFILE" )
 ap.add_argument( "-r", "--rate", type = int, default = 20,
-    help="sample rate in kS/s (20, 50, 64, 100, default: 20)" )
+    help="sample rate in kS/s (20, 50, 64, 100, 128, default: 20)" )
 ap.add_argument( "-t", "--time", type = float, default = 1,
     help="capture time in seconds (default: 1.0)" )
 ap.add_argument( "-x", "--ch1", type = int, default = 1,
@@ -58,7 +58,7 @@ ch1gain      = options.ch1
 ch2gain      = options.ch2
 outfile      = options.outfile or sys.stdout
 
-valid_sample_rates = ( 20, 50, 64, 100 )
+valid_sample_rates = ( 20, 50, 64, 100, 128 )
 valid_gains = ( 1, 2, 5, 10 )
 
 argerror = False
@@ -96,10 +96,7 @@ scope.set_interface( 0 ) # use BULK unless you have specific need for ISO xfer
 scope.set_num_channels( channels )
 
 # calculate and set the sample rate ID from real sample rate value
-if sample_rate < 1e6:
-    sample_id = int( 100 + sample_rate / 10e3 )
-else:
-    sample_id = int( sample_rate / 1e6 )
+sample_id = int( round( 100 + sample_rate / 10e3 ) )
 scope.set_sample_rate( sample_id )
 
 # set the gain for CH1 and CH2

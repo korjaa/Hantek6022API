@@ -213,17 +213,18 @@ It writes the captured data into stdout or an outfile and calculates DC, AC and 
 
 
 The program `plot_from_capture_6022.py` takes the captured data (either from stdin
-or from a file named as 1st command line argument) and presents them as seen on top of this page.
+or from a file from command line argument) and presents them as seen on top of this page.
 
-    usage: plot_from_capture_6022.py [-h] [-i INFILE] [-o OUTFILE] [-c CHANNELS] [-s]
+    usage: plot_from_capture_6022.py [-h] [-i INFILE] [-c CHANNELS] [-s [MAX_FREQ]]
 
     optional arguments:
-    -h, --help              show this help message and exit
-    -i INFILE, --infile INFILE
+      -h, --help            show this help message and exit
+      -i INFILE, --infile INFILE
                             read the data from INFILE
-    -c CHANNELS, --channels CHANNELS
+      -c CHANNELS, --channels CHANNELS
                             show one (CH1) or two (CH1, CH2) channels, default: 2)
-    -s, --spectrum          display the spectrum of the samples
+      -s [MAX_FREQ], --spectrum [MAX_FREQ]
+                            display the spectrum of the samples, optional up to MAX_FREQ
 
 
 ## Other neat things you can do
