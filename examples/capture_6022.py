@@ -7,12 +7,12 @@ usage: capture_6022.py [-h] [-d DOWNSAMPLE] [-o OUTFILE] [-r RATE] [-t TIME]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --decimalcomma        use comma as decimal separator
+  -g, --german          use comma as decimal separator
   -d, --downsample DOWNSAMPLE
                         downsample 256 x DOWNSAMPLE
   -o OUTFILE, --outfile OUTFILE
                         write the data into OUTFILE
-  -r RATE, --rate RATE  sample rate in kS/s (20, 50, 64, 100, 128, default: 20)
+  -r RATE, --rate RATE  sample rate in kS/s (20, 32, 50, 64, 100, 128, 200, default: 20)
   -t TIME, --time TIME  capture time in seconds (default: 1.0)
   -x CH1, --ch1 CH1     gain of channel 1 (1, 2, 5, 10, default: 1)
   -y CH2, --ch2 CH2     gain of channel 2 (1, 2, 5, 10, default: 1)
@@ -24,18 +24,31 @@ import time
 import argparse
 import sys
 
+
+valid_sample_rates = ( 20, 32, 50, 64, 100, 128, 200 )
+valid_gains = ( 1, 2, 5, 10 )
+
+rate_help = "sample rate in kS/s ("
+for valid_rate in valid_sample_rates:
+    rate_help +=  str( valid_rate ) + ", "
+rate_help += "default: 20)"
+
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 #ap.add_argument( "-c", "--channels", type = int, default = 2,
 #    help="how many channels to capture, default: 2" )
-ap.add_argument( "--decimalcomma", action = "store_true",
+ap.add_argument( "-d", "--downsample",
+        action = 'store',
+        type = int,
+        default = 0,
+        const = 1,
+        nargs = '?',
+        help= "downsample 256 x DOWNSAMPLE" )
+ap.add_argument( "-g", "--german", action = "store_true",
     help="use comma as decimal separator" )
-ap.add_argument( "-d", "--downsample", type = int, default = 0,
-    help="downsample 256 x DOWNSAMPLE" )
 ap.add_argument( "-o", "--outfile", type = argparse.FileType("w"),
     help="write the data into OUTFILE" )
-ap.add_argument( "-r", "--rate", type = int, default = 20,
-    help="sample rate in kS/s (20, 50, 64, 100, 128, default: 20)" )
+ap.add_argument( "-r", "--rate", type = int, default = 20, help=rate_help )
 ap.add_argument( "-t", "--time", type = float, default = 1,
     help="capture time in seconds (default: 1.0)" )
 ap.add_argument( "-x", "--ch1", type = int, default = 1,
@@ -50,7 +63,7 @@ options = ap.parse_args()
 ############
 #
 channels     = 2
-decimalcomma = options.decimalcomma
+german = options.german
 downsample   = options.downsample
 sample_rate  = options.rate
 sample_time  = options.time
@@ -58,8 +71,6 @@ ch1gain      = options.ch1
 ch2gain      = options.ch2
 outfile      = options.outfile or sys.stdout
 
-valid_sample_rates = ( 20, 50, 64, 100, 128 )
-valid_gains = ( 1, 2, 5, 10 )
 
 argerror = False
 if sample_rate not in valid_sample_rates:
@@ -96,7 +107,11 @@ scope.set_interface( 0 ) # use BULK unless you have specific need for ISO xfer
 scope.set_num_channels( channels )
 
 # calculate and set the sample rate ID from real sample rate value
-sample_id = int( round( 100 + sample_rate / 10e3 ) )
+if sample_rate < 1e6:
+	sample_id = int( round( 100 + sample_rate / 10e3 ) ) # 20k..500k -> 102..150
+else:
+	sample_id = int( round( sample_rate / 1e6 ) ) # 1M -> 1
+
 scope.set_sample_rate( sample_id )
 
 # set the gain for CH1 and CH2
@@ -153,8 +168,8 @@ def pcb( ch1_data, ch2_data ):
             pcb.av1 = pcb.av1 / downsample
             pcb.av2 = pcb.av2 / downsample
             if pcb.timestep < sample_time:
-                line = "{:>10.5f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, pcb.av1, pcb.av2 )
-                if decimalcomma:
+                line = "{:>10.6f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, pcb.av1, pcb.av2 )
+                if german:
                     line=line.replace( ',', ';' ).replace( '.', ',' )
                 outfile.write( line )
             pcb.av1 = pcb.av2 = 0
@@ -162,8 +177,8 @@ def pcb( ch1_data, ch2_data ):
     else: # write out every sample
         for ch1_value, ch2_value in zip( ch1_scaled, ch2_scaled ): # merge CH1 & CH2
             if pcb.timestep < sample_time:
-                line = "{:>10.5f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, ch1_value, ch2_value )
-                if decimalcomma:
+                line = "{:>10.6f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, ch1_value, ch2_value )
+                if german:
                     line=line.replace( ',', ';' ).replace( '.', ',' )
                 outfile.write( line )
             pcb.timestep = pcb.timestep + tick
@@ -211,7 +226,7 @@ scope.close_handle()
 if downsample: # calculate the effective sample rate
     sample_rate = sample_rate / 256 / downsample
 line = "\rCaptured data for {} second(s) @ {} S/s\n".format( sample_time, sample_rate)
-if decimalcomma:
+if german:
     line=line.replace( ',', ';' ).replace( '.', ',' )
 sys.stderr.write( line )
 
@@ -229,11 +244,11 @@ rms1 = math.sqrt( rms1 )
 rms2 = math.sqrt( rms2 )
 
 line = "CH1: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc1, ac1, rms1 )
-if decimalcomma:
+if german:
     line=line.replace( ',', ';' ).replace( '.', ',' )
 sys.stderr.write( line )
 line = "CH2: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc2, ac2, rms2 )
-if decimalcomma:
+if german:
     line=line.replace( ',', ';' ).replace( '.', ',' )
 sys.stderr.write( line )
 

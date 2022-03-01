@@ -10,7 +10,7 @@
 	.3048MHZ	0		; 30 MHz
 	.IFCLKOE	0		; IFCLK tri-state, CTL0 CTL2 drives the ADC
 
-	D	37			OE0 OE2		; 37 cycles, CTL0 CTL2 low
+	D	37			OE0 OE2			; 37 cycles, CTL0 CTL2 low
 	Z	37			CTL0 CTL2 OE0 OE2	; 37 cycles, CTL0 CTL2 high
 	J 	RDY0 AND RDY0 $0 $0	CTL0 CTL2 OE0 OE2	; 1 cycle, jp 0
 

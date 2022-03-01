@@ -1,4 +1,4 @@
-__version__ = '2.10'
+__version__ = '2.10.1'
 
 
 from setuptools import setup

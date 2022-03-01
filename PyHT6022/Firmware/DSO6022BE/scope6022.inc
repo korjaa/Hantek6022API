@@ -215,6 +215,7 @@ static const struct samplerate_info samplerates[] = {
     {3, waveform_3, ifconfig_3},       //   3 MS/s
     {2, waveform_2, ifconfig_2},       //   2 MS/s
     {1, waveform_1, ifconfig_1},       //   1 MS/s
+    {164, waveform_164, ifconfig_164}, // 640 kS/s
     {150, waveform_150, ifconfig_150}, // 500 kS/s
     {140, waveform_140, ifconfig_140}, // 400 kS/s
     {120, waveform_120, ifconfig_120}, // 200 kS/s
@@ -223,6 +224,7 @@ static const struct samplerate_info samplerates[] = {
     {106, waveform_106, ifconfig_106}, //  64 kS/s
     {105, waveform_105, ifconfig_105}, //  50 kS/s
     {104, waveform_104, ifconfig_104}, //  40 kS/s
+    {103, waveform_103, ifconfig_103}, //  32 kS/s
     {102, waveform_102, ifconfig_102}, //  20 kS/s
 };
 
@@ -257,16 +259,18 @@ static BOOL set_samplerate( BYTE rate ) {
 
 // new functon to set the calibration pulse frequency that allows
 // to set all possible frequencies between 40 Hz and 100 kHz
+// integer dividers of 2MHz Hz will be exact
 // frequencies between 40 Hz and 1000 Hz can be multiples of 10 Hz
+// frequencies between 100 Hz to 10 kHz can be multiples of 100 Hz
 // frequencies between 1 kHz to 100 kHz can be multiples of 1 kHz
-// integer dividers of 2e6 Hz will be exact
 // calibration frequency is coded into one byte parameter freq:
 // freq == 0   -> 100 Hz (compatibility to old sigrok coding)
-// freq == 103 -> 32 Hz (lowest possible frequency due to 16bit HW timer2)
 // freq 1..100 -> freq in kHz
-// freq 101..200  -> (value-100)*10 is freq in Hz
+// freq 101, 102 -> not possible
+// freq == 103 -> 32 Hz (lowest possible frequency due to 16bit HW timer2)
+// freq 104..200  -> (value-100)*10 is freq in Hz
 // freq 201..255  -> (value-200)*100 is freq in Hz
-// e.g. 105 -> 50 Hz, 20 -> 20 kHz
+// e.g. 105 -> 50 Hz, 216 -> 1600 Hz, 20 -> 20 kHz
 //
 static BOOL set_calibration_pulse( BYTE freq ) {
     long frequency;
@@ -276,7 +280,7 @@ static BOOL set_calibration_pulse( BYTE freq ) {
         frequency = freq * 1000L;
     else if ( freq == 103 ) // special case for 32 Hz
         frequency = 32;
-    else if ( freq <= 200 ) // 101..200 -> 10, 20, 30 ... 1000 Hz
+    else if ( freq <= 200 ) // 101..200 -> (10, 20, 30,) 40 ... 1000 Hz
         frequency = ( freq - 100 ) * 10L;
     else // 201..255 -> 100, 200, 300 ... 5500 Hz
         frequency = ( freq - 200 ) * 100L;

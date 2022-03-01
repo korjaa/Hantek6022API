@@ -2,7 +2,7 @@
 ;
 ; Comment header
 ;
-	.WAVEFORM 	113		; 128 kS/s = 48M / 375
+	.WAVEFORM 	113		; 128 kS/s (375 cycles @ 48 MHz)
 
 	.TRICTL		1		; Assume TRICTL=1
 

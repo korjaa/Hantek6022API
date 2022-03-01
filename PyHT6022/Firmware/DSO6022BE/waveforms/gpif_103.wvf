@@ -2,12 +2,12 @@
 ;
 ; Comment header
 ;
-	.WAVEFORM	102		; 20 kS/s (1500 cycles @ 30 MHz)
+	.WAVEFORM	103		; 32 kS/s (1500 cycles @ 48 MHz)
 
 	.TRICTL		1		; Assume TRICTL=1
 
 	.IFCLKSRC	1		; feed internal 30/48 MHz to the GPIF
-	.3048MHZ	0		; 30 MHz
+	.3048MHZ	1		; 48 MHz
 	.IFCLKOE	0		; IFCLK tri-state, CTL0 CTL2 drives the ADC
 
 	D	250			OE0 OE2			; 250 cycles, CTL0 CTL2 low

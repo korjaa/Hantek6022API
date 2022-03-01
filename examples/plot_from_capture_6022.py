@@ -9,6 +9,7 @@ Install with: 'apt install python3-matplotlib' if missing.
 
 import csv
 import matplotlib.pyplot as plt
+import matplotlib.mlab as ml
 import sys
 import argparse
 
@@ -18,8 +19,8 @@ ap = argparse.ArgumentParser()
 #    help="how many channels to capture, default: 2" )
 ap.add_argument( "-i", "--infile", type = argparse.FileType("r"),
     help="read the data from INFILE" )
-ap.add_argument( "-c", "--channels", type = int, default = 2,
-    help="show one (CH1) or two (CH1, CH2) channels, default: 2)" )
+ap.add_argument( "-c", "--channel", type = int, default = 0,
+    help="show only CH1 or CH2, default: show both)" )
 ap.add_argument( "-s", '--spectrum',
     dest = 'max_freq',
     const = -1,
@@ -29,6 +30,10 @@ ap.add_argument( "-s", '--spectrum',
     type = int,
     help = "display the spectrum of the samples, optional up to MAX_FREQ" )
 options = ap.parse_args()
+
+if options.channel not in (0, 1, 2):
+    print( "error, channel must be 1 or 2" )
+    sys.exit()
 
 infile = options.infile or sys.stdin
 
@@ -48,10 +53,10 @@ for row in capture:
 
 infile.close()
 
-fs = 1 / ( time[1] - time[0] )
+# calculate sample frequency
+fs = ( len( time ) - 1 ) / ( time[-1] - time[0] )
 
-
-if options.channels == 2:
+if options.channel == 0:
 # Stack plots in two rows, one or two columns, sync their time and frequency axes
     if options.max_freq:
         fig, ( (v1, sp1), (v2, sp2) ) = plt.subplots( 2, 2, sharex = 'col' )
@@ -82,24 +87,30 @@ if options.channels == 2:
     v2.set(xlabel='Time', ylabel='Voltage (V)' )
     v2.grid( True )
 
-else:
+else: # CH1 or CH2
+    if options.channel == 1:
+        ch = ch1
+        color = 'C1'
+    else:
+        ch = ch2
+        color = 'C0'
 # Plot in one rows, one or two columns
     if options.max_freq:
-        fig, ( v1, sp1 ) = plt.subplots( 1, 2 )
+        fig, ( v, sp ) = plt.subplots( 1, 2 )
         # Channel 1 spectrum
-        sp1.set_title( 'Spectrum 1' )
-        sp1.magnitude_spectrum( ch1, fs, scale = 'dB', color = 'C1' )
+        sp.set_title( 'Spectrum ' + str( options.channel ) )
+        sp.magnitude_spectrum( ch, fs, scale = 'dB', color = color )
         if options.max_freq > 0:
-            sp1.axes.set_xlim( [ 0, options.max_freq ] )
-        sp1.grid( True )
+            sp.axes.set_xlim( [ 0, options.max_freq ] )
+        sp.grid( True )
     else:
-        fig, v1 = plt.subplots( 1 )
+        fig, v = plt.subplots( 1 )
 
-    # Channel 1 data
-    v1.set_title( 'Channel 1' )
-    v1.plot( time, ch1, color = 'C1' )
-    v1.set(xlabel='Time', ylabel='Voltage (V)' )
-    v1.grid( True )
+    # Channel data
+    v.set_title( 'Channel ' + str( options.channel ) )
+    v.plot( time, ch, color = color )
+    v.set(xlabel='Time', ylabel='Voltage (V)' )
+    v.grid( True )
 
 
 fig.tight_layout()
