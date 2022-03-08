@@ -20,6 +20,7 @@ Configure with command line arguments:
 
 from PyHT6022.LibUsbScope import Oscilloscope
 
+import sys
 import time
 import binascii
 
@@ -91,7 +92,8 @@ print("Setting up scope...")
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit( -1 )
 
 if (not scope.is_device_firmware_present):
     scope.flash_firmware()

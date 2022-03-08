@@ -1,6 +1,7 @@
 __author__ = 'Robert Cope', 'Jochen Hoenicke'
 
 import os
+import sys
 import time
 import usb1
 import array
@@ -221,7 +222,11 @@ class Oscilloscope(object):
         self.device_handle = self.device.open()
         if os.name == 'posix' and self.device_handle.kernelDriverActive(0):
             self.device_handle.detachKernelDriver(0)
-        self.device_handle.claimInterface(0)
+        try:
+            self.device_handle.claimInterface(0)
+        except Exception as e:
+            print( e, file=sys.stderr )
+            return False
         if self.is_device_firmware_present:
             self.set_num_channels(2)
             self.set_interface(0)
@@ -236,9 +241,13 @@ class Oscilloscope(object):
         """
         if not self.device_handle:
             return True
-        if release_interface:
-            self.device_handle.releaseInterface(0)
-        self.device_handle.close()
+        try:
+            if release_interface:
+                self.device_handle.releaseInterface(0)
+            self.device_handle.close()
+        except Exception as e:
+            print( e, file=sys.stderr )
+            return False
         self.device_handle = None
         return True
 

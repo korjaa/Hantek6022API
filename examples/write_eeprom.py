@@ -2,12 +2,14 @@
 
 __author__ = 'Jochen Hoenicke'
 
+import sys
 from PyHT6022.LibUsbScope import Oscilloscope
 
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit( -1 )
 
 # read at end-16, 16 bytes
 eeprom = scope.read_eeprom( 256 - 16, 16 )

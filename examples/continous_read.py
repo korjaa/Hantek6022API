@@ -4,6 +4,7 @@ __author__ = 'rcope'
 
 from PyHT6022.LibUsbScope import Oscilloscope
 import matplotlib.pyplot as plt
+import sys
 import time
 import numpy as np
 from collections import deque
@@ -36,7 +37,8 @@ data_points = 3 * 1024
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit()
 scope.flash_firmware()
 scope.set_interface(1) # choose ISO
 scope.set_num_channels(1)

@@ -92,7 +92,8 @@ if argerror:
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit( -1 )
 
 # upload correct firmware into device's RAM
 if (not scope.is_device_firmware_present):

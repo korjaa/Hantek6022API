@@ -6,7 +6,9 @@ from PyHT6022.LibUsbScope import Oscilloscope
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit( -1 )
+
 firmware = scope.read_firmware(length=16*1024, chunk_len=32)
 scope.close_handle()
 

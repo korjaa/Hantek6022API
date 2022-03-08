@@ -23,7 +23,8 @@ alternative = 1         # choose ISO 3072 bytes per 125 us
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit()
 if (not scope.is_device_firmware_present):
     scope.flash_firmware()
 else:

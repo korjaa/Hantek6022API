@@ -1,3 +1,4 @@
+2022-03-01: new sample rates 32k, 640k, doc update, tools update [4cb4edb]
 2022-02-28: upversion to FW0210, new sample rate 128 kS/s (ID: 113) [f4755d2]
 2022-02-08: more tool programs in examples [6c9d2d7]
 2022-02-05: Merge branch 'main' of github.com:Ho-Ro/Hantek6022API fix last commit [078dffd]

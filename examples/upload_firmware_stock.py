@@ -2,11 +2,13 @@
 
 __author__ = 'Robert Cope'
 
+import sys
 from PyHT6022.LibUsbScope import Oscilloscope
 from PyHT6022.Firmware import stock_firmware as Firmware
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit( -1 )
 scope.flash_firmware( firmware = Firmware )
 scope.close_handle()

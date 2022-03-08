@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 
+import sys
 from PyHT6022.LibUsbScope import Oscilloscope
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit( -1 )
+
 scope.flash_firmware()
 print( "FW version", hex( scope.get_fw_version() ) )
 

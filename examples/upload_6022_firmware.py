@@ -2,15 +2,16 @@
 
 """
 Flash default firmware into device
-ither firmare-DSO6022BE or firmware-DSO6022BL or firmware-DSO6021
+either firmare-DSO6022BE or firmware-DSO6022BL or firmware-DSO6021
 depending on VID/PID
 """
-
+import sys
 from PyHT6022.LibUsbScope import Oscilloscope
 
 scope = Oscilloscope()
 scope.setup()
-scope.open_handle()
+if not scope.open_handle():
+    sys.exit( -1 )
 scope.flash_firmware()
 print( "FW version", hex( scope.get_fw_version() ) )
 scope.close_handle()

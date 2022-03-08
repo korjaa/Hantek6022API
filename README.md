@@ -6,7 +6,7 @@
 
 This repo is based on the excellent work of [Robert](https://github.com/rpcope1/Hantek6022API) 
 and [Jochen](https://github.com/jhoenicke/Hantek6022API) 
-and focusses mainly on Hantek6022BE/BL under Linux (development system: debian buster).
+and focusses mainly on Hantek6022BE/BL under Linux (development system: Debian stable).
 
 ## Hantek 6022 Firmware
 
@@ -18,41 +18,60 @@ and focusses mainly on Hantek6022BE/BL under Linux (development system: debian b
 
 <img alt="Scope Visualisation Example" width="100%" src="plot_from_capture.png">
 
-This is a API for Python for the
-ultra-cheap, reasonably usable (and hackable) 6022 DSO, with a libusb implementation via libusb1 for Linux.
+This is a API for Python for the ultra-cheap, reasonably usable (and hackable) 6022 DSO,
+with a libusb implementation via libusb1 for Linux.
 
-The scope can be accessed by instantiating an oscilloscope object with the correct scopeid (always 0 for one scope
-attached). Things like voltage divisions and sampling rates can be set by the appropriate methods.
-Please check the provided example programs, the comments will give you more hints for own experiments.
-Each method has some documentation as to what it does currently though, and hopefully
-variable names are clear enough to give you some idea what they are for.
+The scope can be accessed by instantiating an oscilloscope object.
+Things like voltage divisions and sampling rates can be set by the appropriate methods.
+Please check the provided [example programs](https://github.com/Ho-Ro/Hantek6022API/tree/main/examples),
+the comments will give you more hints for own experiments.
+Each method has documentation about what it is doing, and hopefully the variable names are clear enough
+to give you an idea of what they are for.
 
-## Developed under Linux
+## Linux Install
 
-If you're on Linux, you're in luck. Provided are bindings for libusb to operate this
-little device. You may wish to first add 60-hantek-6022-usb.rules to your udev rules, via
+If you're on Linux, you're in luck.
+Provided are bindings for libusb to operate this little device with simple python commands.
+If you are a user, you can simply download the latest Debian package from
+[releases](https://github.com/Ho-Ro/Hantek6022API/releases) and use the utilities in
+[examples](https://github.com/Ho-Ro/Hantek6022API/tree/main/examples),
+all tools named `*_6022.py` are copied to `/usr/bin` and are thus globally available.
+
+## Developer Info
+
+If you are a developer, you will definitely clone the repo and work with it more intensively. So please read on...
+
+You may wish to first add `60-hantek-6022-usb.rules` (living in [udev](https://github.com/Ho-Ro/Hantek6022API/tree/main/udev))
+to your udev rules, via
 
     sudo cp 60-hantek-6022-usb.rules /etc/udev/rules.d/
 
 After you've done this, the scope should automatically come up with the correct permissions to be accessed
 without being root user.
 
-The following instructions are tested with Debian (*stretch* and *buster*)
-and are executed also automatically under Ubuntu (*2004*) - have a look
+The following instructions are tested with Debian stable versions *stretch*, *buster* and *bullseye*
+and are executed also automatically by GitHub under Ubuntu (*2004*) after each push to this repo - have a look
 at the [GitHub Action](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml).
-On each successful run a debian package is available under *Artifacts*.
+On each successful run a Debian package is available under *Artifacts*.
+
+### Build Preparations
 
 To compile the custom firmware you have to install (as root) the *small devices c compiler* `sdcc` and the tool `pkgconf`:
 
     sudo apt install sdcc pkgconf
 
-### Submodule fx2lib
-Hantek6022API uses the submodule [fx2lib](https://github.com/Ho-Ro/fx2lib) that I cloned from the [original fx2lib](https://github.com/djmuhlestein/fx2lib) to do minor maintenance updates.
+Take care when the SDCC version gets updated. the step from 3.9 to 4.0 introduced a nasty regression due to [less optimal code](https://github.com/Ho-Ro/Hantek6022API/blob/4cb4edbf1e6d2d5df21dbb4dabb8f51c932a0348/PyHT6022/Firmware/DSO6022BE/scope6022.inc#L80)
+from the newer version.
 
-Pull the submodule in:
+Hantek6022API uses the submodule [fx2lib](https://github.com/Ho-Ro/fx2lib) that I cloned from the
+[original fx2lib](https://github.com/djmuhlestein/fx2lib) to do minor maintenance updates.
+
+Pull the submodule in (once):
 
     git submodule init
     git submodule update --remote
+
+### Linux Build
 
 To build the custom firmware run `make` in the top level directory:
 
@@ -79,9 +98,43 @@ The installed programs can also be uninstalled cleanly with
 
     sudo dpkg -P hantek6022api
 
-With the device plugged in, run `upload_firmware_6022.py` once to bootstrap the scope for use.
+
 You can then look at the scope traces via `capture_6022.py -t 0.01 | plot_from_capture_6022.py`,
 or write your own programs - look at the programs in `examples` as a start.
+
+If you want to make low-level experiments with the python commands you should bootstrap the scope for use:
+With the device plugged in, run `upload_6022_firmware.py` once.
+The *user tools* `*_6022.py` do this automatically at start.
+
+**Don't Panik!**
+The firmware is uploaded into RAM and is lost after switching off the scope or disconnecting
+the USB, so the device can never be *bricked*.
+
+This simple program sets the calibration output frequency to 400 Hz
+(you can use each even divison of 2 MHz between 32 Hz and 100 kHz).
+
+```python
+#!/usr/bin/python3
+
+# get the python package
+from PyHT6022.LibUsbScope import Oscilloscope
+
+# create an Osclloscope object
+scope = Oscilloscope()
+
+# setup the scope
+scope.setup()
+
+# attach to the scope
+scope.open_handle()
+
+# upload firmware unless already uploaded
+if (not scope.is_device_firmware_present):
+    scope.flash_firmware()
+
+# and now set the calibration frequency output to 400 Hz
+scope.set_calibration_frequency( 400 )
+```
 
 ## It even works under Windows
 
@@ -150,9 +203,13 @@ Configure with command line arguments:
         -e, --eeprom         store calibration values in eeprom
         -g, --measure_gain   interactively measure gain (as well as offset)
 
+### Fast Offset Calibration
+
 Apply 0 V to both inputs (e.g. connect both probes to the GND calibration connector) and execute:
 
     calibrate_6022.py -e
+
+### Complete Offset and Gain Calibration
 
 If is also possible to measure and create also gain calibration.
 To calibrate gain you have to apply a well known voltage (setpoint)
@@ -172,24 +229,26 @@ the program measures and compares them against the expected gain settings:
 6. The program option `-e` stores the calibration values in eeprom
 7. The program option `-c` creates a config file `modelDSO6022.conf`
 
-This config file can be copied into directory `~/.config/OpenHantek`.
+This (optional) config file can be copied into directory `~/.config/OpenHantek`.
 On every startup OpenHantek reads this file and applies the calibratipon accordingly.
+The config file has higher priority than the eeprom content.
+It has also the advantage not to mess with the eeprom.
 
 The calibration voltages do not have to correspond absolutely to the given value,
-but the applied voltage should not be much higher than the given value and must be determined exactly -
-e.g. by measuring it with a multimeter. Type in the measured voltage at the prompt.
-4 AA batteries in a battery holder are a simple and reliable voltage source:
+but the applied voltage should not be much higher than the proposed value and must be determined exactly -
+e.g. by measuring it with a multimeter. Type in the real measured voltage at the prompt.
+4 fresh AA batteries in a battery holder are a simple and reliable voltage source:
 
-Requested Voltage | Applied Voltage | Comment
-------------------|-----------------|--------
-0.4 V             | 0.3 V           | 2 x AA with 1/10 probe
-0.8 V             | 0.6 V           | 4 x AA with 1/10 probe
-2.0 V             | 1.5 V           | 1 x AA
-4.0 V             | 3.0 V or 4.5 V  | 2 or 3 x AA
+Requested Voltage | Applied Voltage  | Comment
+------------------|------------------|--------
+0.4 V             | ~0.3 V           | 2 x AA with 1/10 probe
+0.8 V             | ~0.6 V           | 4 x AA with 1/10 probe
+2.0 V             | ~1.5 V           | 1 x AA
+4.0 V             | ~3.0 V or ~4.5 V | 2 or 3 x AA
 
 [Read more about the eeprom content...](docs/README.md#eeprom)
 
-## Use the device as a data logger ##
+## Use the device as a data logger
 
 The program `capture_6022.py` (also in `/usr/bin/`) allows to capture both channels over a long time.
 
