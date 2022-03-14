@@ -151,37 +151,37 @@ def pcb( ch1_data, ch2_data ):
     if skip1st: # skip the 1st (unstable) block
         skip1st = False
         return
-    totalsize = totalsize + size
+    totalsize += size
     ch1_scaled = scope.scale_read_data( ch1_data, ch1gain, channel=1 )
     ch2_scaled = scope.scale_read_data( ch2_data, ch2gain, channel=2 )
     # average over the block (256 byte), prepare AC/DC
     av1 = 0
     for value in ch1_scaled:
-        av1 = av1 + value
-        dc1 = dc1 + value
-        rms1 = rms1 + (value*value)
-    av1 = av1 / size
+        av1 += value
+        dc1 += value
+        rms1 += (value*value)
+    av1 /= size
     av2 = 0
     for value in ch2_scaled:
-        av2 = av2 + value
-        dc2 = dc2 + value
-        rms2 = rms2 + (value*value)
-    av2 = av2 / size
+        av2 += value
+        dc2 += value
+        rms2 += (value*value)
+    av2 /= size
     if downsample: # average further over more blocks
-        pcb.av1 = pcb.av1 + av1
-        pcb.av2 = pcb.av2 + av2
-        pcb.slowdown = pcb.slowdown + 1
+        pcb.av1 += av1
+        pcb.av2 += av2
+        pcb.slowdown += 1
         if pcb.slowdown >= downsample:
             pcb.slowdown = 0
-            pcb.av1 = pcb.av1 / downsample
-            pcb.av2 = pcb.av2 / downsample
+            pcb.av1 /= downsample
+            pcb.av2 /= downsample
             if pcb.timestep < sample_time:
                 line = "{:>10.6f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, pcb.av1, pcb.av2 )
                 if german:
                     line=line.replace( ',', ';' ).replace( '.', ',' )
                 outfile.write( line )
             pcb.av1 = pcb.av2 = 0
-            pcb.timestep = pcb.timestep + tick * size * downsample
+            pcb.timestep += tick * size * downsample
     else: # write out every sample
         for ch1_value, ch2_value in zip( ch1_scaled, ch2_scaled ): # merge CH1 & CH2
             if pcb.timestep < sample_time:
@@ -189,7 +189,7 @@ def pcb( ch1_data, ch2_data ):
                 if german:
                     line=line.replace( ',', ';' ).replace( '.', ',' )
                 outfile.write( line )
-            pcb.timestep = pcb.timestep + tick
+            pcb.timestep += tick
 #
 ##########################################################
 
