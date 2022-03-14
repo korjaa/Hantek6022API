@@ -38,4 +38,3 @@ print()
 # write new content
 scope.write_eeprom( 0, hantek_id )
 scope.close_handle()
-

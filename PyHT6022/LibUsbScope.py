@@ -256,30 +256,27 @@ class Oscilloscope(object):
         """
         Returns the BCD coded firmware/device version
         """
-        if self.device:
-            return self.device.getbcdDevice()
-        else:
+        if not self.device:
             return None
+        return self.device.getbcdDevice()
 
 
     def get_product_string( self ):
         """
         Returns the product name string
         """
-        if self.device:
-            return self.device.getProduct()
-        else:
+        if not self.device:
             return None
+        return self.device.getProduct()
 
 
     def get_serial_number_string( self ):
         """
         Returns the 6 byte serial number as 12 char string
         """
-        if self.device:
-            return self.device.getSerialNumber()
-        else:
+        if not self.device:
             return None
+        return self.device.getSerialNumber()
 
 
     def __del__(self):
@@ -369,23 +366,23 @@ class Oscilloscope(object):
         assert bytes_written == 1
         if not to_ihex:
             return ''.join(firmware_chunk_list)
-        else:
-            lines = []
-            for i, chunk in enumerate(firmware_chunk_list):
-                addr = address + i*chunk_len
-                iterable_chunk = array.array('B', chunk)
-                hex_data = "".join(["{:02x}".format(b) for b in iterable_chunk])
-                total_sum = (sum(iterable_chunk) + chunk_len + (addr % 256) + (addr >> 8)) % 256
-                checksum = (((0xFF ^ total_sum) & 0xFF) + 0x01) % 256
-                line = ":{nbytes:02x}{addr:04x}{itype:02x}{hex_data}{checksum:02x}".format(nbytes=chunk_len,
-                                                                                           addr=addr,
-                                                                                           itype=0x00,
-                                                                                           hex_data=hex_data,
-                                                                                           checksum=checksum)
-                lines.append(line)
-            # Add stop record at the end.
-            lines.append(":00000001ff")
-            return "\n".join(lines)
+
+        lines = []
+        for i, chunk in enumerate(firmware_chunk_list):
+            addr = address + i*chunk_len
+            iterable_chunk = array.array('B', chunk)
+            hex_data = "".join(["{:02x}".format(b) for b in iterable_chunk])
+            total_sum = (sum(iterable_chunk) + chunk_len + (addr % 256) + (addr >> 8)) % 256
+            checksum = (((0xFF ^ total_sum) & 0xFF) + 0x01) % 256
+            line = ":{nbytes:02x}{addr:04x}{itype:02x}{hex_data}{checksum:02x}".format(nbytes=chunk_len,
+                                                                                        addr=addr,
+                                                                                        itype=0x00,
+                                                                                        hex_data=hex_data,
+                                                                                        checksum=checksum)
+            lines.append(line)
+        # Add stop record at the end.
+        lines.append(":00000001ff")
+        return "\n".join(lines)
 
 
     def get_calibration_values(self, size=32, timeout=0):
@@ -854,19 +851,18 @@ class Oscilloscope(object):
         :param timeout: (OPTIONAL).
         :return: True if successful. This method may assert or raise various libusb errors if something went wrong.
         """
-        if self.supports_single_channel:
-            assert nchannels == 1 or nchannels == 2
-            if not self.device_handle:
-                assert self.open_handle()
-            bytes_written = self.device_handle.controlWrite(0x40, self.SET_NUMCH_REQUEST,
-                                                            self.SET_NUMCH_VALUE,
-                                                            self.SET_NUMCH_INDEX,
-                                                            pack("B", nchannels), timeout=timeout)
-            assert bytes_written == 0x01
-            self.num_channels = nchannels
-            return True
-        else:
+        if not self.supports_single_channel:
             return False
+        assert nchannels == 1 or nchannels == 2
+        if not self.device_handle:
+            assert self.open_handle()
+        bytes_written = self.device_handle.controlWrite(0x40, self.SET_NUMCH_REQUEST,
+                                                        self.SET_NUMCH_VALUE,
+                                                        self.SET_NUMCH_INDEX,
+                                                        pack("B", nchannels), timeout=timeout)
+        assert bytes_written == 0x01
+        self.num_channels = nchannels
+        return True
 
 
     def set_ch1_voltage_range(self, range_index, timeout=0):

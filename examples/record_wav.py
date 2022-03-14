@@ -28,10 +28,10 @@ if not scope.open_handle():
 if (not scope.is_device_firmware_present):
     scope.flash_firmware()
 else:
-    scope.supports_single_channel = True;
+    scope.supports_single_channel = True
 print("Setting up scope!")
 
-scope.set_interface(alternative);
+scope.set_interface(alternative)
 print("ISO" if scope.is_iso else "BULK", "packet size:", scope.packetsize)
 scope.set_num_channels(numchannels)
 # set voltage range
@@ -50,8 +50,8 @@ print("now")
 
 data = []
 data_extend = data.append
+
 def extend_callback(ch1_data, _):
-    global data_extend
     data_extend(ch1_data)
 
 start_time = time.time()

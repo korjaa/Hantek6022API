@@ -49,9 +49,7 @@ time.sleep(1)
 data = deque(maxlen=2*1024*1024)
 data_extend = data.extend
 
-
 def extend_callback(ch1_data, _):
-    global data_extend
     data_extend(ch1_data)
 
 start_time = time.time()

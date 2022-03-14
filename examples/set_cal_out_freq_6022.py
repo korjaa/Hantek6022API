@@ -3,8 +3,6 @@
 
 from PyHT6022.LibUsbScope import Oscilloscope
 import sys
-'''set the frequency of calibration output from 1st command line argument.
-frequency must be '''
 
 usage = 'usage: set_cal_out_freq_6022 FREQ\nwith 32 <= FREQ <= 100000'
 
@@ -24,4 +22,3 @@ if not scope.open_handle():
 
 if not scope.set_calibration_frequency( cal_freq ):
     print( 'error', file=sys.stderr )
-

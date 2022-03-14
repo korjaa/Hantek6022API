@@ -120,6 +120,16 @@ scope.set_ch1_voltage_range( ch1gain )
 scope.set_ch2_voltage_range( ch2gain )
 
 
+#define some globals (used by callback)
+skip1st = True # marker for skip of 1st (unstable) packet
+tick = 1 / sample_rate # time between two samples
+totalsize = 0
+dc1 = dc2 = rms1 = rms2 = 0
+
+timestep = 0
+start_time = time.time() + scope.packetsize / sample_rate # correct the 1st skipped block
+
+
 ##########################################################
 # this callback is called every time a data packet arrives
 # scale the data packets and write them into the outfile
@@ -134,9 +144,6 @@ def pcb( ch1_data, ch2_data ):
         pcb.timestep = 0
     if 'slowdown' not in pcb.__dict__:
         pcb.slowdown = 0
-
-    global skip1st, start_time, tick
-    global totalsize, dc1, dc2, rms1, rms2
 
     size = len( ch1_data )
     if( size == 0 ):
@@ -186,14 +193,6 @@ def pcb( ch1_data, ch2_data ):
 #
 ##########################################################
 
-
-skip1st = True # marker for skip of 1st (unstable) packet
-tick = 1 / sample_rate # time between two samples
-totalsize = 0
-dc1 = dc2 = rms1 = rms2 = 0
-
-timestep = 0
-start_time = time.time() + scope.packetsize / sample_rate # correct the 1st skipped block
 
 # GO!
 scope.start_capture()

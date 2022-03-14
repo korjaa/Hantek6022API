@@ -65,14 +65,14 @@ num_worker_threads = 6
 # Worker threads: processing data
 #--------------------------------------------------
 def process_data(worker_id, queue):
-	global data, voltage_range
 	while True:
 		i = queue.get()
 
 		data_lock.acquire()
 		try:
 			print("i:",i," data len:",len(data))
-			if i >= len(data): continue
+			if i >= len(data):
+                            continue
 			block = data[i]
 		finally:
 			data_lock.release()
@@ -101,7 +101,6 @@ def extend_callback(ch1_data, _):
 	# Note: This function has to be kept as simple and fast as possible
 	#       to prevent loss of measurements. Only copy data here. All other
 	#       processing is done in worker threads afterwards.
-	global data, queue
 	#print("ch1_data:", ch1_data)
 	#print("min:{} max:{}".format(min(ch1_data), max(ch1_data)))
 	print("queue.put():",len(data))
@@ -163,7 +162,6 @@ curve_max = p1.plot(data2, pen=(0, 255, 0))
 curve_min_max_diff = p2.plot(np.array([]))
 
 def update():
-	global curve_min, curve_max, curve_min_max_diff
 	MAX_BLOCKS_KEPT = 50
 	t1 = time.time()
 	if len(data) > MAX_BLOCKS_KEPT:
@@ -180,17 +178,20 @@ def update():
 	maxs = []
 	min_max_diff = []
 	for block in data:
-		if 'min' in block: mins += [block['min']]
-		if 'max' in block: maxs += [block['max']]
-		if 'min' in block and 'max' in block: min_max_diff += [block['max']-block['min']]
-	del mins        [:1]
-	del maxs        [:1]
+		if 'min' in block:
+                    mins += [block['min']]
+		if 'max' in block:
+                    maxs += [block['max']]
+		if 'min' in block and 'max' in block:
+                    min_max_diff += [block['max']-block['min']]
+	del mins[:1]
+	del maxs[:1]
 	del min_max_diff[:1]
 	t3 = time.time()
 	#print("mins",mins)
 	#print("maxs",maxs)
-	curve_min         .setData(np.array(mins))
-	curve_max         .setData(np.array(maxs))
+	curve_min.setData(np.array(mins))
+	curve_max.setData(np.array(maxs))
 	curve_min_max_diff.setData(np.array(min_max_diff))
 	t4 = time.time()
 	print("update() t2:{} t3:{} t4:{}".format(t2-t1, t3-t2, t4-t3))
