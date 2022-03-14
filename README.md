@@ -37,6 +37,12 @@ If you are a user, you can simply download the latest Debian package from
 [examples](https://github.com/Ho-Ro/Hantek6022API/tree/main/examples),
 all tools named `*_6022.py` are copied to `/usr/bin` and are thus globally available.
 
+You can even use the programs without installing anything. You just need a working `python3-libusb` installation.
+All you need is the `PyHT6022` directory in the directory where your Python program is located (e.g. in `examples`).
+This means: download this repo (as `https://github.com/Ho-Ro/Hantek6022API/archive/refs/heads/main.zip`
+or with `git clone https://github.com/Ho-Ro/Hantek6022API.git`), go to `examples` and try e.g. `python3 get_serial_number.py`.
+
+
 ## Developer Info
 
 If you are a developer, you will definitely clone the repo and work with it more intensively. So please read on...
@@ -98,7 +104,6 @@ The installed programs can also be uninstalled cleanly with
 
     sudo dpkg -P hantek6022api
 
-
 You can then look at the scope traces via `capture_6022.py -t 0.01 | plot_from_capture_6022.py`,
 or write your own programs - look at the programs in `examples` as a start.
 
@@ -136,7 +141,7 @@ if (not scope.is_device_firmware_present):
 scope.set_calibration_frequency( 400 )
 ```
 
-## It even works under Windows
+## It may even work under Windows
 
 [@justlep](https://github.com/justlep) wrote:
 > here is what I did:
@@ -161,6 +166,13 @@ or together with the example programs in the same directory.
 
 YMMV, I checked it only with a bare-bones virtual Win7 install under Debian.
 
+See also [Problems running calibration (#13)](https://github.com/Ho-Ro/Hantek6022API/issues/13)
+
+OpenHantek provides a new function for [offset calibration](https://github.com/OpenHantek/OpenHantek6022#offset-calibration)
+and stores the calibration values persistently as an ini file. This ini file provides also entries for (manual) gain correction.
+So in most cases you do not need the python tools anymore, that were difficult to install for Windows users. The following
+section is therefore targeted to Linux (and MacOS) users as well as Windows users with a working libusb python installation.
+
 ## Create calibration values for OpenHantek
 
 <img alt="Uncalibrated scope data" width="50%" src="HT6022BE_uncalibrated.png">
@@ -180,13 +192,16 @@ gives an expected tolerance range:
 - sqrt( 4 * (5%)² ) = 2 * 5% = 10% for all other gains
 
 To reduce this effect OpenHantek uses individual correction values:
-1. Offset and gain calibration are read from a calibration file `~/.config/OpenHantek/modelDSO6022.ini` (Linux, Unix, macOS)
-or `%APPDATA%\OpenHantek\modelDSO6022.ini` for Windows.
+1. Offset and gain calibration are read from a calibration file
+`~/.config/OpenHantek/DSO-6022BE_NNNNNNNNNNNN_calibration.ini` (Linux, Unix, macOS)
+or `%APPDATA%\OpenHantek\DSO-6022BE_NNNNNNNNNNNN_calibration.ini` for Windows
+(where NN... is the unique serial number of the scope).
 2. If this file is not available offset and calibration will be read from eeprom.
 
 Step 2 uses the factory offset calibration values in eeprom.
 Out of the box only offset values are contained in eeprom,
-the program `calibrate_6022.py` (installed in `/usr/bin`) allows to update these values in case the offset has changed over time.
+the program `calibrate_6022.py` (installed in `/usr/bin`) allows to update these values
+in case the offset has changed over time.
 
 Program to calibrate offset and gain of Hantek 6022BE/BL
 1. Measure offset at low and high speed for the four gain steps x10, x5, x2, x1

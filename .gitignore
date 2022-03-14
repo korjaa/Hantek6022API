@@ -44,3 +44,8 @@ model*.conf
 *.old
 *.diff
 
+# Other intermediate files
+*.conf
+*.ini
+*.dat
+*.dump

@@ -84,10 +84,6 @@ create_config = args["create_config"]
 eeprom = args["eeprom"]
 measure_gain = args["measure_gain"]
 
-# print("create_config: {}, eeprom: {}, measure_gain: {}".format( args["create_config"], args["eeprom"], args["measure_gain"] ) )
-
-
-
 print("Setting up scope...")
 
 scope = Oscilloscope()
@@ -96,6 +92,7 @@ if not scope.open_handle():
     sys.exit( -1 )
 
 if (not scope.is_device_firmware_present):
+    print( 'Upload firmware...' )
     scope.flash_firmware()
 
 scope.supports_single_channel = True
@@ -170,24 +167,36 @@ for gain in gainSteps:
 
 if ( create_config ):
     # prepare config file
-    configfile = "modelDSO6022.ini"
-    config = open( configfile, "w" )
-    config.write( ";OpenHantek calibration file for DSO6022\n;Created by tool 'calibrate.py'\n\n" )
+    product = scope.get_product_string()
+    if product:
+        calFile = product + "_"
+    else:
+        calFile = "DSO-6022BE_"
+    serial_number = scope.get_serial_number_string()
+    if serial_number:
+        calFile += serial_number + "_calibration.ini"
+    else:
+        calFile += "_NN_calibration.ini"
+
+    print( "\nCalibration file:", calFile )
+    config = open( calFile, "w" )
+    config.write( ";OpenHantek calibration file: " )
+    config.write( calFile )
+    config.write( "\n;Created by tool 'calibrate_6022.py'\n\n" )
+
     config.write( "[offset]\n" )
+    for index, gainID in enumerate( gains ):
+        voltID = V_div[ index ]
+        if ( abs( offset1[ gainID ] ) <= 25 ):   # offset too high -> skip
+            config.write( "ch0\\%dmV=%6.2f\n" % ( voltID, -offset1[ gainID ] ) )
+    for index, gainID in enumerate( gains ):
+        voltID = V_div[ index ]
+        if ( abs( offset2[ gainID ] ) <= 25 ):   # offset too high -> skip
+            config.write( "ch1\\%dmV=%6.2f\n" % ( voltID, -offset2[ gainID ] ) )
 
 
 for index, gainID in enumerate( gains ):
     # print( gains[index], offlo1[gainID], offlo2[gainID], offhi1[gainID], offhi2[gainID],  )
-
-    if ( create_config ):
-        # write integer offset for low speed sampling into config file
-        # add this value to get zero calibration
-        voltID = V_div[ index ]
-        if ( abs( offlo1[ gainID ] ) <= 25 ):   # offset too high -> skip
-            config.write( "ch0\\%dmV=%d\n" % ( voltID, -offlo1[ gainID ] ) )
-        if ( abs( offlo2[ gainID ] ) <= 25 ):   # offset too high -> skip
-            config.write( "ch1\\%dmV=%d\n" % ( voltID, -offlo2[ gainID ] ) )
-
     # prepare eeprom content
     # store values in offset binary format (zero = 0x80, as in factory setup)
     if ( abs( offlo1[ gainID ] ) <= 25 ):                           # offset too high -> skip
@@ -210,7 +219,6 @@ if ( measure_gain ):
     print( "\nCalculate gain adjustment"  )
     print( "Apply the requested voltage (as exactly as possible) to both channels and press <ENTER>" )
     print( "You can also apply a slightly lower or higher stable voltage and type in this value\n" )
-
 
     # theoretical gain error of 6022 front end due to nominal resistor values (e.g. 5.1 kOhm instead 5.0)
     # these values are considered also in OpenHantek6022
@@ -251,9 +259,18 @@ if ( measure_gain ):
 
             # print( gain1[ gain ], gain2[ gain ] )
 
-
     if ( create_config ):
         config.write( "\n[gain]\n" )
+        for index, gainID in enumerate( gains ):
+            voltID = V_div[ index ]
+            g1 = gain1[ gainID ]
+            if ( g1 ):
+                config.write( "ch0\\%dmV=%6.4f\n" % ( voltID, g1 ) )
+        for index, gainID in enumerate( gains ):
+            voltID = V_div[ index ]
+            g2 = gain2[ gainID ]
+            if ( g2 ):
+                config.write( "ch1\\%dmV=%6.4f\n" % ( voltID, g2 ) )
 
     for index, gainID in enumerate( gains ):
         voltID = V_div[ index ]
@@ -265,23 +282,30 @@ if ( measure_gain ):
         if ( g2 ):
             # convert double 0.75 ... 1.25 -> byte 0x80-125 ... 0x80+125
             ee_calibration[ 2 * index + 33 ] = int( round( ( g2 - 1 ) * 500 + 0x80 ) )
-        if ( create_config ):
-            if ( g1 ):
-                config.write( "ch0\\%dmV=%6.4f\n" % ( voltID, g1 ) )
-            if ( g2 ):
-                config.write( "ch1\\%dmV=%6.4f\n" % ( voltID, g2 ) )
+
+else:
+    if ( create_config ):
+        config.write( "\n[gain]\n" )
+        for index, gainID in enumerate( gains ):
+            voltID = V_div[ index ]
+            config.write( "ch0\\%dmV=1.0\n" % voltID )
+        for index, gainID in enumerate( gains ):
+            voltID = V_div[ index ]
+            config.write( "ch1\\%dmV=1.0\n" % voltID )
 
 # endif ( measure_gain )
 
 
+# values created with this tool replace intrinsic (EEPROM) calibration values
 if ( create_config ):
+    config.write( "\n[eeprom]\nreplace_eeprom=true\n" )
     config.close()
 
 
 if ( eeprom ):
-    print( "eeprom content [  8 .. 39 ]: ", binascii.hexlify( ee_calibration[  0:32 ] ) )
-    print( "eeprom content [ 40 .. 55 ]: ", binascii.hexlify( ee_calibration[ 32:48 ] ) )
-    print( "eeprom content [ 56 .. 87 ]: ", binascii.hexlify( ee_calibration[ 48:80 ] ) )
+    print( "\nEEPROM content [  8 .. 39 ]: ", binascii.hexlify( ee_calibration[  0:32 ] ) )
+    print( "EEPROM content [ 40 .. 55 ]: ", binascii.hexlify( ee_calibration[ 32:48 ] ) )
+    print( "EEPROM content [ 56 .. 87 ]: ", binascii.hexlify( ee_calibration[ 48:80 ] ) )
     # finally store the calibration values into eeprom
     scope.set_calibration_values( ee_calibration )
 

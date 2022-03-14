@@ -262,6 +262,26 @@ class Oscilloscope(object):
             return None
 
 
+    def get_product_string( self ):
+        """
+        Returns the product name string
+        """
+        if self.device:
+            return self.device.getProduct()
+        else:
+            return None
+
+
+    def get_serial_number_string( self ):
+        """
+        Returns the 6 byte serial number as 12 char string
+        """
+        if self.device:
+            return self.device.getSerialNumber()
+        else:
+            return None
+
+
     def __del__(self):
         self.close_handle()
 
