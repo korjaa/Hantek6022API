@@ -481,7 +481,10 @@ static void main( void ) {
     // RENUMERATE();
     // USBCS &= ~bmDISCON;
 
-    /* Init the ports with values defined in the scopeXXXX.c files */
+    // Init the ports with values defined in the scopeXXXX.c files
+    // Setting PORTECFG.2 = 1 enables PE.2 as T2OUT that gives a
+    // pulse when T2 overflows with double calibration frequency.
+    // Toggle a flipflop to get a jitter-free HW calibration signal.
     PORTECFG = INIT_PORTECFG;
     PORTCCFG = INIT_PORTCCFG;
     PORTACFG = INIT_PORTACFG;

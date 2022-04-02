@@ -27,10 +27,11 @@
 #include <setupdat.h>
 
 
-/* A and C and E set to PORT */
+/* A and C set to PORT */
 #define INIT_PORTACFG 0
 #define INIT_PORTCCFG 0
-#define INIT_PORTECFG 0
+/* PE2: T2OUT for HW calibration output, other bits are port E output */
+#define INIT_PORTECFG 0x04
 
 /* Set port E that a 6022 with AC/DC HW mod will start in DC mode like the original */
 #define INIT_IOA 0x00
@@ -42,7 +43,7 @@
 #define INIT_OEC 0xFF
 #define INIT_OEE 0xFF
 
-
+/* not needed for 6022BE (only 6022BL) */
 #define SET_ANALOG_MODE()
 
 
@@ -50,18 +51,19 @@
  * Each LSB in the nibble of the byte controls the coupling per channel.
  * 0: AC, 1: DC
  *
- * Setting PE3 disables AC coupling capacitor on CH0.
- * Setting PE0 disables AC coupling capacitor on CH1.
+ * Setting PE3 disables AC coupling capacitor on CH1.
+ * Setting PE0 disables AC coupling capacitor on CH2.
+ * Register IOE is not bit-addressable (only IOA and IOC).
  */
 static BOOL set_coupling( BYTE coupling_cfg ) {
     if ( coupling_cfg & 0x01 )
-        IOE |= 0x08;
+        IOE |= 0x08;  // set IOE.3
     else
-        IOE &= ~0x08;
+        IOE &= ~0x08; // reset IOE.3
     if ( coupling_cfg & 0x10 )
-        IOE |= 0x01;
+        IOE |= 0x01;  // set IOE.0
     else
-        IOE &= ~0x01;
+        IOE &= ~0x01; // reset IOE.1
     return TRUE;
 }
 

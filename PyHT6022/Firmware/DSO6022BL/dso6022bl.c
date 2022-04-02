@@ -30,12 +30,13 @@
 /* A and C and E set to PORT */
 #define INIT_PORTACFG 0
 #define INIT_PORTCCFG 0
-#define INIT_PORTECFG 0
+/* PE2: T2OUT for HW calibration output, other bits are port E output */
+#define INIT_PORTECFG 0x04
 
 /* Set port E that a 6022 with AC/DC HW mod will start in DC mode like the original */
 #define INIT_IOA 0x00
 #define INIT_IOC 0x00
-#define INIT_IOE 0x0F
+#define INIT_IOE 0x0B
 
 /* set PORT A, C, E as output */
 #define INIT_OEA 0xFF
@@ -56,19 +57,20 @@
  * @fregmented wrote in pull request #9 (https://github.com/Ho-Ro/Hantek6022API/pull/9):
  * "I added PE1 to CH1 and PE2 to Ch2 to use R40 (PE0, CH2) and R41 (PE1, CH1)
  * connected to USB-XI ports because the 6022BL does not have JP2."
+ * PE2 is not needed for AC/DC switching - can be used for T2OUT
  * 
- * Setting PE1 and PE3 disables AC coupling capacitor on CH0.
- * Setting PE0 and PE2 disables AC coupling capacitor on CH1.
+ * Setting PE1 and PE3 disables AC coupling capacitor on CH1.
+ * Setting PE0 and disables AC coupling capacitor on CH2.
  */
 static BOOL set_coupling( BYTE coupling_cfg ) {
     if ( coupling_cfg & 0x01 )
-        IOE |= 0x0A;
+        IOE |= 0x0A; // PE1 | PE3
     else
         IOE &= ~0x0A;
     if ( coupling_cfg & 0x10 )
-        IOE |= 0x05;
+        IOE |= 0x01; // PE0
     else
-        IOE &= ~0x05;
+        IOE &= ~0x01;
     return TRUE;
 }
 

@@ -1,3 +1,4 @@
+2022-03-21: Fix #15 - install Linux files only when building under Linux [be76527]
 2022-03-14: More refactoring [5d434c2]
 2022-03-14: Code cleanup / refactor [f4c52e1]
 2022-03-14: Adapt calibration file format for OH6022 persistent offset storage [3cac630]

@@ -14,6 +14,8 @@ include examples/fft_ft_from_capture_6022.py
 include examples/set_cal_out_freq_6022.py
 include examples/upload_6022_firmware_from_hex.py
 include examples/upload_6022_firmware.py
+
+# linux binaries
 include fx2upload/fx2upload
 
 # the udev rules to access USB
