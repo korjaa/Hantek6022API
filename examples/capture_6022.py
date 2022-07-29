@@ -135,6 +135,8 @@ start_time = time.time() + scope.packetsize / sample_rate # correct the 1st skip
 # scale the data packets and write them into the outfile
 #
 def pcb( ch1_data, ch2_data ):
+    # use these global vaiables
+    global skip1st,totalsize,dc1,dc2,rms1,rms2,timestep,start_time
     # define "static" variables
     if 'av1' not in pcb.__dict__:
         pcb.av1 = 0
