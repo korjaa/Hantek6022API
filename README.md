@@ -1,8 +1,12 @@
 # Hantek6022API
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Ho-Ro/Hantek6022API)](https://github.com/Ho-Ro/Hantek6022API/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/Ho-Ro/Hantek6022API?color=blue)](https://github.com/Ho-Ro/Hantek6022API/releases)
+[![GitHub commits since latest release](https://img.shields.io/github/commits-since/Ho-Ro/Hantek6022API/latest?color=blue)](https://github.com/Ho-Ro/Hantek6022API/commits/master)
+
 [![Build_Check](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml/badge.svg)](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml)
-[![CodeFactor](https://www.codefactor.io/repository/github/ho-ro/hantek6022api/badge)](https://www.codefactor.io/repository/github/ho-ro/hantek6022api)
 [![Stability: Active](https://masterminds.github.io/stability/active.svg)](https://masterminds.github.io/stability/active.html)
+[![CodeFactor](https://www.codefactor.io/repository/github/ho-ro/hantek6022api/badge)](https://www.codefactor.io/repository/github/ho-ro/hantek6022api)
 
 This repo is based on the excellent work of [Robert](https://github.com/rpcope1/Hantek6022API) 
 and [Jochen](https://github.com/jhoenicke/Hantek6022API) 
