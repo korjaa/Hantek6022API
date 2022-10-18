@@ -36,9 +36,11 @@
 ;; along with this program; if not, see <http://www.gnu.org/licenses/>.
 ;;
 
-; Firmware version and USB power requirement
-VER = 0x1002	; FW version 0x0210
-POWER = 500/2	; Max 500 mA (1=2mA)
+; Firmware version, sync with "__version__" in "setup.py" and "FIRMWARE_VERSION" in "PyHT6022/LibUsbScope.py"
+FIRMWARE_VERSION = 0x1002	; FW version '2.10' (byte swapped)
+
+; USB power requirement
+USB_POWER = 500/2		; Max 500 mA (1=2mA)
 
 
 .macro string_descriptor_a n,str
@@ -95,7 +97,7 @@ _dev_dscr:
 	.db	64			; Max. EP0 packet size
 	.dw	VID			; Manufacturer ID
 	.dw	PID			; Product ID
-	.dw	VER			; Product version/type
+	.dw	FIRMWARE_VERSION	; Product version/type
 	.db	1			; Manufacturer string index
 	.db	2			; Product string index
 	.db	3			; Serial number string index, 0 if none
@@ -130,7 +132,7 @@ _highspd_dscr:
 	.db	1			; Configuration number
 	.db	0			; Configuration string (none)
 	.db	0x80			; Attributes (bus powered, no wakeup)
-	.db	POWER			; Max. power, defined in descriptor.asm
+	.db	USB_POWER		; Max. power, defined in descriptor.asm
 highspd_dscr_end:
 
 	; Bulk interface 0, alt 0
@@ -314,7 +316,7 @@ _fullspd_dscr:
 	.db	1			; Configuration number
 	.db	0			; Configuration string (none)
 	.db	0x80			; Attributes (bus powered, no wakeup)
-	.db	POWER			; Max. power, defined in descriptor.asm
+	.db	USB_POWER		; Max. power, defined in descriptor.asm
 fullspd_dscr_end:
 
 	; Bulk interface 0, alt 0

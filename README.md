@@ -1,14 +1,16 @@
 # Hantek6022API
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Ho-Ro/Hantek6022API)](https://github.com/Ho-Ro/Hantek6022API/releases)
-[![GitHub Release Date](https://img.shields.io/github/release-date/Ho-Ro/Hantek6022API?color=blue)](https://github.com/Ho-Ro/Hantek6022API/releases)
-[![GitHub commits since latest release](https://img.shields.io/github/commits-since/Ho-Ro/Hantek6022API/latest?color=blue)](https://github.com/Ho-Ro/Hantek6022API/commits/master)
-
 [![Build_Check](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml/badge.svg)](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml)
 [![Stability: Active](https://masterminds.github.io/stability/active.svg)](https://masterminds.github.io/stability/active.html)
-[![CodeFactor](https://www.codefactor.io/repository/github/ho-ro/hantek6022api/badge)](https://www.codefactor.io/repository/github/ho-ro/hantek6022api)
+[![CodeFactor](https://www.codefactor.io/repository/github/ho-ro/hantek6022api/badge)](https://www.codefactor.io/repository/github/Ho-Ro/Hantek6022API)
+[![Downloads total](https://img.shields.io/github/downloads/Ho-Ro/Hantek6022API/total?color=blue)](https://github.com/Ho-Ro/Hantek6022API/releases)
 
-This repo is based on the excellent work of [Robert](https://github.com/rpcope1/Hantek6022API) 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/Ho-Ro/Hantek6022API)](https://github.com/Ho-Ro/Hantek6022API/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/Ho-Ro/Hantek6022API?color=blue)](https://github.com/Ho-Ro/Hantek6022API/releases)
+[![Downloads of latest release](https://img.shields.io/github/downloads/Ho-Ro/Hantek6022API/latest/total?color=blue)](https://github.com/Ho-Ro/Hantek6022API/releases/latest)
+[![GitHub commits since latest release](https://img.shields.io/github/commits-since/Ho-Ro/Hantek6022API/latest?color=blue)](https://github.com/Ho-Ro/Hantek6022API/commits/main)
+
+This repo is based on the excellent work of [Robert](https://github.com/rpcope1/Hantek6022API)
 and [Jochen](https://github.com/jhoenicke/Hantek6022API) 
 and focusses mainly on Hantek6022BE/BL under Linux (development system: Debian stable).
 
@@ -163,7 +165,7 @@ scope.set_calibration_frequency( 400 )
     pip install .
 
 You can also use the `libusb-1.0.dll` file from the
-[libusb-1.0 version](https://github.com/OpenHantek/OpenHantek6022/blob/master/cmake/libusb-1.0.21-win.7z)
+[libusb-1.0 version](https://github.com/OpenHantek/OpenHantek6022/blob/main/cmake/libusb-1.0.21-win.7z)
 that is provided by [OpenHantek6022](https://github.com/OpenHantek/OpenHantek6022).
 The `libusb-1.0.dll` file should be found in the PATH, e.g. it could be in the `python.exe` directory
 or together with the example programs in the same directory.
@@ -186,7 +188,7 @@ switches between 0.0 V and 2.0 V) - also the gain is defined by resistors with 5
 in the frontend - in best case by two resistors R27/17 & R31/21 in the chain (x1),
 in worst case by four resistors R27/17 & R31/21 & R32/23 & R18/19/22 in the chain (x2, x5, x10).
 
--> https://github.com/Ho-Ro/Hantek6022API/blob/master/hardware/6022BE_Frontend_with_pinout.jpg 
+-> https://github.com/Ho-Ro/Hantek6022API/blob/main/hardware/6022BE_Frontend_with_pinout.jpg 
 
 In the end you can have a statistical gain tolerance of about 7%...10% -> RSS analysis
 (root sum square, square all tolerances, sum them up und calculate the root of this sum)

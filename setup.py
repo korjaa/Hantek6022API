@@ -1,3 +1,13 @@
+# Version is X.Y.Z = major.minor.update
+#
+# Keep major.minor in sync:
+# - PyHT6022/Firmware/DSO6022BE/descriptor.inc
+#   Format: X.Y -> "FIRMWARE_VERSION = 0xYYXX"
+# - PyHT6022/LibUsbScope.py
+#   Format: X.Y -> "FIRMWARE_VERSION = 0xXXYY"
+#
+# Update also "const uint16_t DSO602x_FW_VER = 0xXXYY" in "OpenHantek6022/openhantek/res/firmware/dso602x_fw_version.h"
+
 __version__ = '2.10.4'
 
 
@@ -8,7 +18,7 @@ import platform
 
 # generic data files
 data_files=[
-    ( 'share/doc/hantek6022api/', [ 'README.md', 'CHANGELOG', 'LICENSE' ] ),
+    ( os.path.join( 'share', 'doc', 'hantek6022api' ), [ 'README.md', 'CHANGELOG', 'LICENSE' ] ),
 ]
 
 # add linux specific config files and binaries

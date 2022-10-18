@@ -1,3 +1,4 @@
+2022-07-29: update README, add status badges [00a965f]
 2022-07-29: upversion to 2.10.4 [6737826]
 2022-07-29: fix for #17 provided by guerby [b5fbe7b]
 2022-07-15: bugfix for upload_*_firmware_from_hex.py [5309e5f]

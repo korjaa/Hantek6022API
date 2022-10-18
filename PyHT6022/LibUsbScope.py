@@ -13,6 +13,7 @@ from struct import pack
 from PyHT6022.Firmware import dso6021_firmware,dso6022be_firmware, dso6022bl_firmware, fx2_ihex_to_control_packets
 
 class Oscilloscope(object):
+    # sync with "__version__" in "setup.py" and "FIRMWARE_VERSION" in "PyHT6022/Firmware/DSO6022BE/descriptor.inc"
     FIRMWARE_VERSION = 0x0210
     NO_FIRMWARE_VENDOR_ID = 0x04B4
     FIRMWARE_PRESENT_VENDOR_ID = 0x04B5

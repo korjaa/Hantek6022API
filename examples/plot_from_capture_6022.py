@@ -29,11 +29,16 @@ ap.add_argument( "-s", '--spectrum',
     nargs = '?',
     type = int,
     help = "display the spectrum of the samples, optional up to MAX_FREQ" )
+ap.add_argument( "-x", "--xkcd", action = 'store_true',
+    help="plot in XKCD style :)" )
 options = ap.parse_args()
 
 if options.channel not in (0, 1, 2):
     print( "error, channel must be 1 or 2" )
     sys.exit()
+
+if options.xkcd:
+    plt.xkcd()
 
 infile = options.infile or sys.stdin
 
