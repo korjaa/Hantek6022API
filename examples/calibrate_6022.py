@@ -184,21 +184,23 @@ if ( create_config ):
     config.write( calFile )
     config.write( "\n;Created by tool 'calibrate_6022.py'\n\n" )
 
+    # offset as measured: values > 0 correct downwards, values < 0 correct upwards
     config.write( "[offset]\n" )
     for index, gainID in enumerate( gains ):
         voltID = V_div[ index ]
         if ( abs( offset1[ gainID ] ) <= 25 ):   # offset too high -> skip
-            config.write( "ch0\\%dmV=%6.2f\n" % ( voltID, -offset1[ gainID ] ) )
+            config.write( "ch0\\%dmV=%6.2f\n" % ( voltID, offset1[ gainID ] ) )
     for index, gainID in enumerate( gains ):
         voltID = V_div[ index ]
         if ( abs( offset2[ gainID ] ) <= 25 ):   # offset too high -> skip
-            config.write( "ch1\\%dmV=%6.2f\n" % ( voltID, -offset2[ gainID ] ) )
+            config.write( "ch1\\%dmV=%6.2f\n" % ( voltID, offset2[ gainID ] ) )
 
 
 for index, gainID in enumerate( gains ):
     # print( gains[index], offlo1[gainID], offlo2[gainID], offhi1[gainID], offhi2[gainID],  )
     # prepare eeprom content
     # store values in offset binary format (zero = 0x80, as in factory setup)
+    # offset as measured: values > 0x80 correct downwards, values < 0x80 correct upwards
     if ( abs( offlo1[ gainID ] ) <= 25 ):                           # offset too high -> skip
         ee_calibration[ 2 * index ] = 0x80 + offlo1[ gainID ]       # CH1 offset integer part
     if ( abs( offlo_1[ gainID ] ) <= 125 ):                         # frac part not plausible

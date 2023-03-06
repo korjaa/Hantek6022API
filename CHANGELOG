@@ -1,3 +1,4 @@
+2022-10-18: update build process, create OpenHantek6022 header file with FW version [01b82fd]
 2022-07-29: update README, add status badges [00a965f]
 2022-07-29: upversion to 2.10.4 [6737826]
 2022-07-29: fix for #17 provided by guerby [b5fbe7b]

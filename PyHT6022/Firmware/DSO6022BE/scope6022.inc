@@ -258,18 +258,18 @@ static BOOL set_samplerate( BYTE rate ) {
 }
 
 // new functon to set the calibration pulse frequency that allows
-// to set all possible frequencies between 40 Hz and 100 kHz
-// integer dividers of 2MHz Hz will be exact
+// to set all possible frequencies between 32 Hz and 100 kHz
+// integer dividers of 2MHz will be exact
 // frequencies between 40 Hz and 1000 Hz can be multiples of 10 Hz
-// frequencies between 100 Hz to 10 kHz can be multiples of 100 Hz
-// frequencies between 1 kHz to 100 kHz can be multiples of 1 kHz
+// frequencies between 100 Hz and 5500 Hz can be multiples of 100 Hz
+// frequencies between 1 kHz and 100 kHz can be multiples of 1 kHz
 // calibration frequency is coded into one byte parameter freq:
 // freq == 0   -> 100 Hz (compatibility to old sigrok coding)
 // freq 1..100 -> freq in kHz
 // freq 101, 102 -> not possible
 // freq == 103 -> 32 Hz (lowest possible frequency due to 16bit HW timer2)
-// freq 104..200  -> (value-100)*10 is freq in Hz
-// freq 201..255  -> (value-200)*100 is freq in Hz
+// freq 104..200  -> (value-100)*10 is freq in Hz (40, 50, ... 1000)
+// freq 201..255  -> (value-200)*100 is freq in Hz (100, 200, ... 5500)
 // e.g. 105 -> 50 Hz, 216 -> 1600 Hz, 20 -> 20 kHz
 //
 static BOOL set_calibration_pulse( BYTE freq ) {
