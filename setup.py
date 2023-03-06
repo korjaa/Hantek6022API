@@ -8,7 +8,7 @@
 #
 # Update also "const uint16_t DSO602x_FW_VER = 0xXXYY" in "OpenHantek6022/openhantek/res/firmware/dso602x_fw_version.h"
 
-__version__ = '2.10.4'
+__version__ = '2.10.5'
 
 
 from setuptools import setup
