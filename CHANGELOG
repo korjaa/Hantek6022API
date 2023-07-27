@@ -1,3 +1,6 @@
+2023-07-27: Merge pull request #21 from f1rmb/fix_python_version_usage [8021a1a]
+2023-07-27: Make it work when 'python' is not available, but python3 is (like Ubuntu/Mint). [a36eade]
+2023-03-06: correct version [479c738]
 2023-03-06: correct ini file offset sign (same value as in EEPROM), fix comments [d25822d]
 2022-10-18: update build process, create OpenHantek6022 header file with FW version [01b82fd]
 2022-07-29: update README, add status badges [00a965f]

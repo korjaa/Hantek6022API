@@ -15,7 +15,7 @@ jobs:
   # This workflow contains a single job called "build_check"
   build_check:
     # The type of runner that the job will run on - needs ubuntu-20.04 to get a recent sdcc
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

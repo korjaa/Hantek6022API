@@ -1,14 +1,14 @@
 # Version is X.Y.Z = major.minor.update
 #
-# Keep major.minor in sync:
+# Keep major.minor in sync, ignore patch (used for deb version only):
 # - PyHT6022/Firmware/DSO6022BE/descriptor.inc
-#   Format: X.Y -> "FIRMWARE_VERSION = 0xYYXX"
+#   Format: XX.YY.ZZ -> "FIRMWARE_VERSION = 0xYYXX"
 # - PyHT6022/LibUsbScope.py
-#   Format: X.Y -> "FIRMWARE_VERSION = 0xXXYY"
+#   Format: XX.YY.ZZ -> "FIRMWARE_VERSION = 0xXXYY"
 #
 # Update also "const uint16_t DSO602x_FW_VER = 0xXXYY" in "OpenHantek6022/openhantek/res/firmware/dso602x_fw_version.h"
 
-__version__ = '2.10.5'
+__version__ = '2.10.6'
 
 
 from setuptools import setup
