@@ -5,7 +5,7 @@ DSO6021=$(FIRMWARE)/DSO6021
 DSO6022BE=$(FIRMWARE)/DSO6022BE
 DSO6022BL=$(FIRMWARE)/DSO6022BL
 DDS120=$(FIRMWARE)/DDS120
-
+PYTHON=$(shell which python || which python3)
 
 .PHONY: fw_DSO6021
 fw_DSO6021:
@@ -48,7 +48,7 @@ fw_version:
 # create a debian binary package
 .PHONY:	deb
 deb:	clean all changelog
-	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command bdist_deb
+	DEB_BUILD_OPTIONS=nocheck $(PYTHON) setup.py --command-packages=stdeb.command bdist_deb
 	-rm -f hantek6022api_*_all.deb hantek6022api-*.tar.gz
 	ln `ls deb_dist/hantek6022api_*_all.deb | tail -1` .
 	ls -l deb_dist/hantek6022api_*_all.deb
@@ -57,7 +57,7 @@ deb:	clean all changelog
 # create a debian source package
 .PHONY:	dsc
 dsc:	clean all changelog
-	DEB_BUILD_OPTIONS=nocheck python setup.py --command-packages=stdeb.command sdist_dsc
+	DEB_BUILD_OPTIONS=nocheck $(PYTHON) setup.py --command-packages=stdeb.command sdist_dsc
 
 
 .PHONY: debinstall
@@ -68,7 +68,7 @@ debinstall: deb
 # remove all compiler and package build artefacts
 .PHONY: clean
 clean:
-	python setup.py clean
+	$(PYTHON) setup.py clean
 	-rm -rf *~ .*~ deb_dist dist *.tar.gz *.egg* build tmp
 	( cd $(DSO6021) && make clean )
 	( cd $(DSO6022BE) && make clean )
