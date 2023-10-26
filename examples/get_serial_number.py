@@ -23,3 +23,5 @@ if serial:
 version = scope.get_fw_version()
 if version:
     print( 'FW version:', hex( version ) )
+
+scope.close_handle()
