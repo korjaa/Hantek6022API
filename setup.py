@@ -39,7 +39,7 @@ as well as an improved FW for Hantek 6022 USB Oscilloscopes''',
     version=__version__,
     license='GPLv2',
     # the required python packages
-    install_requires=['libusb1', 'matplotlib'],
+    install_requires=['libusb1', 'matplotlib', 'numpy'],
     url='https://github.com/Ho-Ro/Hantek6022API',
     packages=[ 'PyHT6022', 'PyHT6022.Firmware' ],
     package_data={
