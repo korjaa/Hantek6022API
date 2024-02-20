@@ -1,13 +1,15 @@
 __author__ = 'Robert Cope', 'Jochen Hoenicke'
 
+import array
+import libusb1
 import os
 import sys
+import threading
 import time
 import usb1
-import array
-import select
-import libusb1
-import threading
+
+import numpy as np
+
 from struct import pack
 
 from PyHT6022.Firmware import dso6021_firmware,dso6022be_firmware, dso6022bl_firmware, fx2_ihex_to_control_packets
@@ -746,7 +748,8 @@ class Oscilloscope(object):
                 off = offset + self.offset2[ voltage_range ]
 
         scale_factor = ( 5.12 * mul ) / ( voltage_range << 7 )
-        return [ ( datum - 128 - off ) * scale_factor for datum in read_data ]
+        data = (np.array(read_data, dtype=float) - 128 - off) * scale_factor
+        return data.tolist()
 
 
     def voltage_to_adc( self, voltage, voltage_range=1, channel=1, probe=1, offset=0 ):
@@ -841,7 +844,9 @@ class Oscilloscope(object):
         :return: A list of times in seconds from beginning of data collection, and the nice human readable rate label.
         """
         rate_label, rate = self.SAMPLE_RATES.get(rate_index, ("? MS/s", 1.0))
-        return [i/rate for i in range(num_points)], rate_label
+        timing_data = np.arange(0, num_points)
+        timing_data = (timing_data / rate).tolist()
+        return timing_data, rate_label
 
 
     def set_num_channels(self, nchannels, timeout=0):
