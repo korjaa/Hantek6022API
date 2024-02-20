@@ -1,3 +1,4 @@
+2023-10-26: doc update; fix debug tool [ff6c527]
 2023-07-27: Update version; update github runner (ubuntu-20.04 -> ubuntu-22.04) [c692226]
 2023-07-27: Merge pull request #21 from f1rmb/fix_python_version_usage [8021a1a]
 2023-07-27: Make it work when 'python' is not available, but python3 is (like Ubuntu/Mint). [a36eade]
