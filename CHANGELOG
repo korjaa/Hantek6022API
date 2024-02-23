@@ -1,4 +1,4 @@
-2024-02-20: Merge branch 'main' of github.com:Ho-Ro/Hantek6022API [bf181c0]
+2024-02-20: Merge branch 'main' of github.com:Ho-Ro/Hantek6022API [c8cee4c]
 2024-02-20: add warning to dangerous example program reset_eeprom_6022.py [d1ad1a0]
 2023-11-05: Merge pull request #22 from BMecke/main [cde80ef]
 2023-10-26: doc update; fix debug tool [ff6c527]

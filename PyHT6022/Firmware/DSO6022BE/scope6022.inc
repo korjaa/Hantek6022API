@@ -201,31 +201,31 @@ struct samplerate_info {
 
 static const struct samplerate_info samplerates[] = {
     // ID, waveform[32], ifconfig
-    {48, waveform_48, ifconfig_48},    //  48 MS/s
-    {30, waveform_30, ifconfig_30},    //  30 MS/s
-    {24, waveform_24, ifconfig_24},    //  24 MS/s
-    {16, waveform_16, ifconfig_16},    //  16 MS/s
-    {15, waveform_15, ifconfig_15},    //  15 MS/s
-    {12, waveform_12, ifconfig_12},    //  12 MS/s
-    {10, waveform_10, ifconfig_10},    //  10 MS/s
-    {8, waveform_8, ifconfig_8},       //   8 MS/s
-    {6, waveform_6, ifconfig_6},       //   6 MS/s
-    {5, waveform_5, ifconfig_5},       //   5 MS/s
-    {4, waveform_4, ifconfig_4},       //   4 MS/s
-    {3, waveform_3, ifconfig_3},       //   3 MS/s
-    {2, waveform_2, ifconfig_2},       //   2 MS/s
-    {1, waveform_1, ifconfig_1},       //   1 MS/s
-    {164, waveform_164, ifconfig_164}, // 640 kS/s
-    {150, waveform_150, ifconfig_150}, // 500 kS/s
-    {140, waveform_140, ifconfig_140}, // 400 kS/s
-    {120, waveform_120, ifconfig_120}, // 200 kS/s
-    {113, waveform_113, ifconfig_113}, // 128 kS/s
-    {110, waveform_110, ifconfig_110}, // 100 kS/s
-    {106, waveform_106, ifconfig_106}, //  64 kS/s
-    {105, waveform_105, ifconfig_105}, //  50 kS/s
-    {104, waveform_104, ifconfig_104}, //  40 kS/s
-    {103, waveform_103, ifconfig_103}, //  32 kS/s
-    {102, waveform_102, ifconfig_102}, //  20 kS/s
+    { 48, waveform_48, ifconfig_48 },    //  48 MS/s
+    { 30, waveform_30, ifconfig_30 },    //  30 MS/s
+    { 24, waveform_24, ifconfig_24 },    //  24 MS/s
+    { 16, waveform_16, ifconfig_16 },    //  16 MS/s
+    { 15, waveform_15, ifconfig_15 },    //  15 MS/s
+    { 12, waveform_12, ifconfig_12 },    //  12 MS/s
+    { 10, waveform_10, ifconfig_10 },    //  10 MS/s
+    { 8, waveform_8, ifconfig_8 },       //   8 MS/s
+    { 6, waveform_6, ifconfig_6 },       //   6 MS/s
+    { 5, waveform_5, ifconfig_5 },       //   5 MS/s
+    { 4, waveform_4, ifconfig_4 },       //   4 MS/s
+    { 3, waveform_3, ifconfig_3 },       //   3 MS/s
+    { 2, waveform_2, ifconfig_2 },       //   2 MS/s
+    { 1, waveform_1, ifconfig_1 },       //   1 MS/s
+    { 164, waveform_164, ifconfig_164 }, // 640 kS/s
+    { 150, waveform_150, ifconfig_150 }, // 500 kS/s
+    { 140, waveform_140, ifconfig_140 }, // 400 kS/s
+    { 120, waveform_120, ifconfig_120 }, // 200 kS/s
+    { 113, waveform_113, ifconfig_113 }, // 128 kS/s
+    { 110, waveform_110, ifconfig_110 }, // 100 kS/s
+    { 106, waveform_106, ifconfig_106 }, //  64 kS/s
+    { 105, waveform_105, ifconfig_105 }, //  50 kS/s
+    { 104, waveform_104, ifconfig_104 }, //  40 kS/s
+    { 103, waveform_103, ifconfig_103 }, //  32 kS/s
+    { 102, waveform_102, ifconfig_102 }, //  20 kS/s
 };
 
 static BOOL set_samplerate( BYTE rate ) {
@@ -448,7 +448,38 @@ static void init( void ) {
     select_interface( 0 );
 }
 
-void insert_serial_number();
+// EZ-USB® FX2LP™ Unique ID Registers – KBA89285
+// Question:
+// Is there a die ID or a unique ID on each EZ-USB® FX2LP™ chip
+// that can be used in the application firmware?
+// Answer:
+// Yes. The FX2LP chips have a 6-byte unique ID that can be read and used
+// in the application firmware by customers. This ID is present at these
+// register addresses: 0xE507, 0xE508, 0xE509, 0xE50A, 0xE50B, and 0xE50C.
+// The most significant byte is present at address 0xE50C,
+// and the least significant byte is present at address 0xE507.
+// Please make sure to read and store the ID in that order.
+
+__xdata __at 0xE507 volatile BYTE UNIQID[ 6 ]; // 6 ID register bytes little endian
+
+extern __code BYTE serial_num; // defined in descriptor.asm file for the serial number
+
+// array used to convert hex to ascii
+static const char hex2Ascii[ 16 ] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+static void insert_serial_number() {
+    WORD p_serial_num = (WORD)&serial_num;
+
+    // IMPORTANT: be compatible with previous (wrong) implementation
+    // write lower nibble before upper nibble to get same serial number
+
+    BYTE bbb = 6; // start with MSB
+    while ( bbb-- ) {
+        *( (BYTE __xdata *)( p_serial_num += 2 ) ) = hex2Ascii[ UNIQID[ bbb ] & 0x0F ]; // 1. lower nibble
+        *( (BYTE __xdata *)( p_serial_num += 2 ) ) = hex2Ascii[ UNIQID[ bbb ] >> 4 ];   // 2. upper nibble
+    }
+}
+
 
 static void main( void ) {
     /* set to 48 MHz */
@@ -528,26 +559,4 @@ static void main( void ) {
             }
         }
     }
-}
-
-extern __code BYTE serial_num; // defined in descriptor.asm file for the serial number
-
-void insert_serial_number() // see Cypress KBA212789
-{
-    WORD p_serial_num = (WORD)&serial_num;
-    const char hex2Ascii[ 16 ] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                                  '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'}; // array used to convert hex to ascii
-
-    *( (BYTE __xdata *)p_serial_num + 24 ) = hex2Ascii[ ( UNIQID0 & 0xF0 ) >> 4 ]; // LSB
-    *( (BYTE __xdata *)p_serial_num + 22 ) = hex2Ascii[ UNIQID0 & 0x0F ];
-    *( (BYTE __xdata *)p_serial_num + 20 ) = hex2Ascii[ ( UNIQID1 & 0xF0 ) >> 4 ];
-    *( (BYTE __xdata *)p_serial_num + 18 ) = hex2Ascii[ UNIQID1 & 0x0F ];
-    *( (BYTE __xdata *)p_serial_num + 16 ) = hex2Ascii[ ( UNIQID2 & 0xF0 ) >> 4 ];
-    *( (BYTE __xdata *)p_serial_num + 14 ) = hex2Ascii[ UNIQID2 & 0x0F ];
-    *( (BYTE __xdata *)p_serial_num + 12 ) = hex2Ascii[ ( UNIQID3 & 0xF0 ) >> 4 ];
-    *( (BYTE __xdata *)p_serial_num + 10 ) = hex2Ascii[ UNIQID3 & 0x0F ];
-    *( (BYTE __xdata *)p_serial_num + 8 ) = hex2Ascii[ ( UNIQID4 & 0xF0 ) >> 4 ];
-    *( (BYTE __xdata *)p_serial_num + 6 ) = hex2Ascii[ UNIQID4 & 0x0F ];
-    *( (BYTE __xdata *)p_serial_num + 4 ) = hex2Ascii[ ( UNIQID5 & 0xF0 ) >> 4 ];
-    *( (BYTE __xdata *)p_serial_num + 2 ) = hex2Ascii[ UNIQID5 & 0x0F ]; // MSB
 }
