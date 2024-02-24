@@ -1,30 +1,31 @@
 all: fw_DSO6021 fw_DSO6022BE fw_DSO6022BL fw_DDS120 fx2upload fw_version
 
-FIRMWARE=PyHT6022/Firmware
-DSO6021=$(FIRMWARE)/DSO6021
-DSO6022BE=$(FIRMWARE)/DSO6022BE
-DSO6022BL=$(FIRMWARE)/DSO6022BL
-DDS120=$(FIRMWARE)/DDS120
+FIRMWARE=Firmware
+FWDSO6021=$(FIRMWARE)/DSO6021
+FWDSO6022BE=$(FIRMWARE)/DSO6022BE
+FWDSO6022BL=$(FIRMWARE)/DSO6022BL
+FWDDS120=$(FIRMWARE)/DDS120
+PYFWHEX=../../PyHT6022/Firmware/HEX
 PYTHON=$(shell which python || which python3)
 
 .PHONY: fw_DSO6021
 fw_DSO6021:
-	cd $(DSO6021) && make
+	cd $(FWDSO6021) && make && cp dso6021-firmware.hex $(PYFWHEX)
 
 
 .PHONY: fw_DSO6022BE
 fw_DSO6022BE:
-	cd $(DSO6022BE) && make
+	cd $(FWDSO6022BE) && make && cp dso6022be-firmware.hex $(PYFWHEX)
 
 
 .PHONY: fw_DSO6022BL
 fw_DSO6022BL:
-	cd $(DSO6022BL) && make
+	cd $(FWDSO6022BL) && make && cp dso6022bl-firmware.hex $(PYFWHEX)
 
 
 .PHONY: fw_DDS120
 fw_DDS120:
-	cd $(DDS120) && make
+	cd $(FWDDS120) && make && cp dds120-firmware.hex $(PYFWHEX)
 
 
 .PHONY: fx2upload
@@ -70,10 +71,10 @@ debinstall: deb
 clean:
 	$(PYTHON) setup.py clean
 	-rm -rf *~ .*~ deb_dist dist *.tar.gz *.egg* build tmp
-	( cd $(DSO6021) && make clean )
-	( cd $(DSO6022BE) && make clean )
-	( cd $(DSO6022BL) && make clean )
-	( cd $(DDS120) && make clean )
+	( cd $(FWDSO6021) && make clean )
+	( cd $(FWDSO6022BE) && make clean )
+	( cd $(FWDSO6022BL) && make clean )
+	( cd $(FWDDS120) && make clean )
 	( cd fx2upload && make clean )
 
 
@@ -86,11 +87,11 @@ distclean: clean
 # transfer the needed hex files to OpenHantek
 .PHONY: xfer
 xfer: all
-	cp $(DSO6021)/dso6021-firmware.hex \
+	cp $(FWDSO6021)/dso6021-firmware.hex \
 	../OpenHantek6022/openhantek/res/firmware
-	cp $(DSO6022BE)/dso6022be-firmware.hex \
+	cp $(FWDSO6022BE)/dso6022be-firmware.hex \
 	../OpenHantek6022/openhantek/res/firmware
-	cp $(DSO6022BL)/dso6022bl-firmware.hex \
+	cp $(FWDSO6022BL)/dso6022bl-firmware.hex \
 	../OpenHantek6022/openhantek/res/firmware
 	cp $(FIRMWARE)/dso602x_fw_version.h \
 	../OpenHantek6022/openhantek/res/firmware

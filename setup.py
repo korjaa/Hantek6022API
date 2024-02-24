@@ -8,7 +8,7 @@
 #
 # Update also "const uint16_t DSO602x_FW_VER = 0xXXYY" in "OpenHantek6022/openhantek/res/firmware/dso602x_fw_version.h"
 
-__version__ = '2.10.6'
+__version__ = '2.10.7'
 
 
 from setuptools import setup
@@ -41,19 +41,13 @@ as well as an improved FW for Hantek 6022 USB Oscilloscopes''',
     # the required python packages
     install_requires=['libusb1', 'matplotlib', 'numpy'],
     url='https://github.com/Ho-Ro/Hantek6022API',
-    packages=[ 'PyHT6022', 'PyHT6022.Firmware' ],
-    package_data={
-        'PyHT6022': [
-            os.path.join( 'Firmware', 'DSO6022BE', 'dso6022be-firmware.hex' ),
-            os.path.join( 'Firmware', 'DSO6022BL', 'dso6022bl-firmware.hex' ),
-            os.path.join( 'Firmware', 'DSO6021', 'dso6021-firmware.hex' ),
-            os.path.join( 'Firmware', 'DDS120', 'dds120-firmware.hex' ),
-            os.path.join( 'Firmware', 'modded', 'mod_fw_01.ihex' ),
-            os.path.join( 'Firmware', 'modded', 'mod_fw_iso.ihex' ),
-            os.path.join( 'Firmware', 'stock', 'stock_fw.ihex' ),
-        ]
-    },
-    include_package_data=True,
+    packages=[
+        'PyHT6022',
+        'PyHT6022.Firmware',
+        # this package contains the firmware hex files
+        'PyHT6022.Firmware.HEX',
+    ],
+    include_package_data=True, # (->MANIFEST.in)
     # the python scripts that can be found via the PATH
     scripts=[
         os.path.join( 'examples', 'calibrate_6022.py' ),
