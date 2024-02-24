@@ -1,3 +1,4 @@
+2024-02-24: refactoring; move firmware code out of python module [0ddab5e]
 2024-02-23: rework the serial number routine [1c46ba5]
 2024-02-20: Merge branch 'main' of github.com:Ho-Ro/Hantek6022API [c8cee4c]
 2024-02-20: add warning to dangerous example program reset_eeprom_6022.py [d1ad1a0]
