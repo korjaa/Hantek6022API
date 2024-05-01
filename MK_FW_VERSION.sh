@@ -6,7 +6,7 @@
 # write header file for OpenHantek6022
 
 
-MINORMAJOR=`grep -Eo "FIRMWARE_VERSION[[:space:]]+=[[:space:]]+0x[0-9]{4}" Firmware/DSO6022BE/descriptor.inc | cut -dx -f2`
+MINORMAJOR=$(grep -Eo 'FIRMWARE_VERSION[[:space:]]+=[[:space:]]+0x[0-9]{4}' Firmware/DSO6022BE/descriptor.inc | cut -dx -f2)
 
 MINOR=`echo $MINORMAJOR | cut -b1-2`
 MAJOR=`echo $MINORMAJOR | cut -b3-4`
@@ -17,9 +17,11 @@ echo "#pragma once"
 echo
 echo "#include <stdint.h>"
 echo
+echo "// Do not edit, this file will be recreated with every build."
+echo
 echo "const uint16_t DSO602x_FW_VER = 0x${MAJOR}${MINOR};"
 echo
-echo "// setup.py: $(grep -Eo __version__[[:space:]]+=[[:space:]]+\'[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}\' setup.py)"
-echo "// PyHT6022/LibUsbScope.py: $(grep -Eo FIRMWARE_VERSION[[:space:]]+=[[:space:]]+0x[0-9]{4} PyHT6022/LibUsbScope.py)"
+# echo "// setup.py: $(grep -Eo \'__version__[[:space:]]+=[[:space:]]+\'[0-9]{1,2}.[0-9]{1,2}.[0-9]{1,2}\'\' setup.py)"
+echo "// PyHT6022/LibUsbScope.py: $(grep -Eo 'FIRMWARE_VERSION[[:space:]]+=[[:space:]]+0x[0-9]{4}' PyHT6022/LibUsbScope.py)"
 echo "// Firmware/DSO6022BE/descriptor.inc: $(grep -Eo 'FIRMWARE_VERSION[[:space:]]+=[[:space:]]+0x[0-9]{4}' Firmware/DSO6022BE/descriptor.inc)"
 echo

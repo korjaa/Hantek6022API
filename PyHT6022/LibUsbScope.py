@@ -236,7 +236,7 @@ class Oscilloscope(object):
         return True
 
 
-    def close_handle(self, release_interface=True):
+    def close_handle(self, release_interface=False):
         """
         Close the current scope device handle. This should always be called at clean-up.
         :param release_interface: (OPTIONAL) Attempt to release the interface, if we still have it.
@@ -939,11 +939,11 @@ class Oscilloscope(object):
             return False
 
         if cal_freq < 1000:
-            cal_freq_byte = int(cal_freq / 10) + 100 # 103...199 -> 32...990 Hz
+            cal_freq_byte = int((cal_freq + 5) // 10) + 100 # 103...199 -> 32...990 Hz
         elif cal_freq < 5600:
-            cal_freq_byte = int(cal_freq / 100) + 200 # 201...255 -> 100...5500 Hz
+            cal_freq_byte = int((cal_freq + 50) // 100) + 200 # 201...255 -> 100...5500 Hz
         else:
-            cal_freq_byte = ( cal_freq / 1000 ) # 1...100 -> 1...100 kHz
+            cal_freq_byte = int((cal_freq + 500) // 1000 ) # 1...100 -> 1...100 kHz
 
         if not self.device_handle:
             assert self.open_handle()

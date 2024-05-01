@@ -17,8 +17,13 @@ if cal_freq < 32 or cal_freq > 100000:
 
 scope = Oscilloscope()
 scope.setup()
+
 if not scope.open_handle():
     sys.exit( -1 )
+
+# upload correct firmware into device's RAM
+if (not scope.is_device_firmware_present):
+    scope.flash_firmware()
 
 if not scope.set_calibration_frequency( cal_freq ):
     print( 'error', file=sys.stderr )
