@@ -13,16 +13,27 @@ import csv
 import math
 import matplotlib.pyplot as plt
 import sys
+import argparse
+
+# construct the argument parser and parse the arguments
+ap = argparse.ArgumentParser(
+    prog='fft_ft_from_capture_6022.py',
+    description='Plot FFT of output from capture_6022.py, use flattop windowing' )
+ap.add_argument( '-i', '--infile', type = argparse.FileType('r'),
+    help='read the data from INFILE (default: use stdin)' )
+ap.add_argument( '-x', '--xkcd', action = 'store_true',
+    help='plot in XKCD style :)' )
+options = ap.parse_args()
+
+if options.xkcd:
+    plt.xkcd()
+
+infile = options.infile or sys.stdin
 
 # Use output of 'capture_6022.py'
 # Format: no header, values are SI units s and V, separated by comma
 # The data amount should be limited to a few seconds,
 # e.g. with '-t2' or with downsampling for slowly changing signals
-
-if len( sys.argv ) > 1:
-    infile = open( sys.argv[1], 'r' )
-else:
-    infile = sys.stdin
 
 capture = csv.reader( infile )
 

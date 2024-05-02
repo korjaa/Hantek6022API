@@ -34,9 +34,9 @@ for valid_rate in valid_sample_rates:
 rate_help += "default: 20)"
 
 # construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-#ap.add_argument( "-c", "--channels", type = int, default = 2,
-#    help="how many channels to capture, default: 2" )
+ap = argparse.ArgumentParser(
+    prog='capture_6022.py',
+    description='Capture data from both channels of Hantek6022' )
 ap.add_argument( "-d", "--downsample",
         action = 'store',
         type = int,
@@ -47,7 +47,7 @@ ap.add_argument( "-d", "--downsample",
 ap.add_argument( "-g", "--german", action = "store_true",
     help="use comma as decimal separator" )
 ap.add_argument( "-o", "--outfile", type = argparse.FileType("w"),
-    help="write the data into OUTFILE" )
+    help="write the data into OUTFILE (default: stdout)" )
 ap.add_argument( "-r", "--rate", type = int, default = 20, help=rate_help )
 ap.add_argument( "-t", "--time", type = float, default = 1,
     help="capture time in seconds (default: 1.0)" )

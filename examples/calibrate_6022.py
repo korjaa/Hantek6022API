@@ -71,7 +71,9 @@ def read_avg( voltage_range, sample_rate=110, repeat = 1, samples = 12 * 1024 ):
 
 
 # construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
+ap = argparse.ArgumentParser(
+    prog='calibrate_6022.py',
+    description='Measure offset and gain calibration values' )
 ap.add_argument( "-c", "--create_config", action="store_true",
     help="create a config file" )
 ap.add_argument( "-e", "--eeprom", action="store_true",

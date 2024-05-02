@@ -1,3 +1,4 @@
+2024-05-01: fix set_cal_out_freq_6022.py; some minor updates [3560cbd]
 2024-02-25: add fx2lib lib files [852f574]
 2024-02-24: refactoring; move firmware code out of python module [0ddab5e]
 2024-02-23: rework the serial number routine [1c46ba5]

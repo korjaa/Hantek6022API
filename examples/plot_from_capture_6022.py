@@ -14,27 +14,27 @@ import sys
 import argparse
 
 # construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-#ap.add_argument( "-c", "--channels", type = int, default = 2,
-#    help="how many channels to capture, default: 2" )
-ap.add_argument( "-i", "--infile", type = argparse.FileType("r"),
-    help="read the data from INFILE" )
-ap.add_argument( "-c", "--channel", type = int, default = 0,
-    help="show only CH1 or CH2, default: show both)" )
-ap.add_argument( "-s", '--spectrum',
+ap = argparse.ArgumentParser(
+    prog='plot_from_capture_6022.py',
+    description='Plot output of capture_6022.py over time' )
+ap.add_argument( '-i', '--infile', type = argparse.FileType('r'),
+    help='read the data from INFILE (default: use stdin)' )
+ap.add_argument( '-c', '--channel', type = int, default = 0,
+    help='show only CH1 or CH2, default: show both)' )
+ap.add_argument( '-s', '--spectrum',
     dest = 'max_freq',
     const = -1,
     default = 0,
     action = 'store',
     nargs = '?',
     type = int,
-    help = "display the spectrum of the samples, optional up to MAX_FREQ" )
-ap.add_argument( "-x", "--xkcd", action = 'store_true',
-    help="plot in XKCD style :)" )
+    help = 'display the spectrum of the samples, optional up to MAX_FREQ' )
+ap.add_argument( '-x', '--xkcd', action = 'store_true',
+    help='plot in XKCD style :)' )
 options = ap.parse_args()
 
 if options.channel not in (0, 1, 2):
-    print( "error, channel must be 1 or 2" )
+    print( 'error, channel must be 1 or 2' )
     sys.exit()
 
 if options.xkcd:

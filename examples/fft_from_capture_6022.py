@@ -10,15 +10,26 @@ Install with: 'apt install python3-matplotlib' if missing.
 import csv
 import matplotlib.pyplot as plt
 import sys
+import argparse
+
+# construct the argument parser and parse the arguments
+ap = argparse.ArgumentParser(
+    prog='fft_from_capture_6022.py',
+    description='Plot FFT of output from capture_6022.py, use hann windowing' )
+ap.add_argument( '-i', '--infile', type = argparse.FileType('r'),
+    help='read the data from INFILE, (default: stdin)' )
+ap.add_argument( '-x', '--xkcd', action = 'store_true',
+    help='plot in XKCD style :)' )
+options = ap.parse_args()
+
+if options.xkcd:
+    plt.xkcd()
+
+infile = options.infile or sys.stdin
 
 # Use output of 'capture_6022.py'
 # Format: no header, values are SI units s and V, separated by comma
 # The data amount should be limited to a few seconds e.g. with '-t2'
-
-if len( sys.argv ) > 1: # if called with an arg take this as filename
-    infile = open( sys.argv[1], 'r' )
-else: # else use stdin
-    infile = sys.stdin
 
 # process the csv data
 capture = csv.reader( infile )
