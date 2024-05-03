@@ -8,7 +8,7 @@
 #
 # Update also "const uint16_t DSO602x_FW_VER = 0xXXYY" in "OpenHantek6022/openhantek/res/firmware/dso602x_fw_version.h"
 
-__version__ = '2.10.7'
+__version__ = '2.10.8'
 
 
 from setuptools import setup
@@ -19,6 +19,13 @@ import platform
 # generic data files
 data_files=[
     ( os.path.join( 'share', 'doc', 'hantek6022api' ), [ 'README.md', 'CHANGELOG', 'LICENSE' ] ),
+    ( os.path.join( 'share', 'doc', 'hantek6022api', 'examples' ),
+        [ os.path.join( 'examples', 'README.md' ),
+          os.path.join( 'examples', 'fft_from_capture.png' ),
+          os.path.join( 'examples', 'fft_ft_from_capture.png' ),
+          os.path.join( 'examples', 'plot_from_capture.png' ),
+        ],
+    ),
 ]
 
 # add linux specific config files and binaries
@@ -54,7 +61,6 @@ as well as an improved FW for Hantek 6022 USB Oscilloscopes''',
         os.path.join( 'examples', 'capture_6022.py' ),
         os.path.join( 'examples', 'plot_from_capture_6022.py' ),
         os.path.join( 'examples', 'fft_from_capture_6022.py' ),
-        os.path.join( 'examples', 'fft_ft_from_capture_6022.py' ),
         os.path.join( 'examples', 'set_cal_out_freq_6022.py' ),
         os.path.join( 'examples', 'upload_6022_firmware_from_hex.py' ),
         os.path.join( 'examples', 'upload_6022_firmware.py' ),

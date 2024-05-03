@@ -46,31 +46,21 @@ options:
 
 ### `fft_from_capture_6022.py`
 ```
-usage: fft_from_capture_6022.py [-h] [-i INFILE] [-x]
+usage: fft_from_capture_6022.py [-h] [-i INFILE] [-f | -n] [-x]
 
-Plot FFT of output from capture_6022.py, use hann windowing
+Plot FFT of output from capture_6022.py, use hann windowing as default
 
 options:
   -h, --help            show this help message and exit
   -i INFILE, --infile INFILE
                         read the data from INFILE, (default: stdin)
+  -f, --flat_top        use flat top window
+  -n, --no_window       use no window
   -x, --xkcd            plot in XKCD style :)
 ```
-
+#### Hann window
 ![fft from capture](fft_from_capture.png)
-
-### `fft_ft_from_capture_6022.py`
-```
-usage: fft_ft_from_capture_6022.py [-h] [-i INFILE] [-x]
-
-Plot FFT of output from capture_6022.py, use flattop windowing
-
-options:
-  -h, --help            show this help message and exit
-  -i INFILE, --infile INFILE
-                        read the data from INFILE
-  -x, --xkcd            plot in XKCD style :)
-```
+#### Flat top window
 ![fft ft from capture](fft_ft_from_capture.png)
 
 ### `plot_from_capture_6022.py`
@@ -82,7 +72,7 @@ Plot output of capture_6022.py over time
 options:
   -h, --help            show this help message and exit
   -i INFILE, --infile INFILE
-                        read the data from INFILE (default: use stdin)
+                        read the data from INFILE (default: stdin)
   -c CHANNEL, --channel CHANNEL
                         show only CH1 or CH2, default: show both)
   -s [MAX_FREQ], --spectrum [MAX_FREQ]

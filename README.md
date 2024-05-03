@@ -22,7 +22,7 @@ and focusses mainly on Hantek6022BE/BL under Linux (development system: Debian s
 
 ## Hantek 6022 Python API for Linux
 
-<img alt="Scope Visualisation Example" width="100%" src="plot_from_capture.png">
+![Scope Visualisation Example](examples/plot_from_capture.png)
 
 This is a API for Python for the ultra-cheap, reasonably usable (and hackable) 6022 DSO,
 with a libusb implementation via libusb1 for Linux.
@@ -45,8 +45,12 @@ all tools named `*_6022.py` are copied to `/usr/bin` and are thus globally avail
 
 You can even use the programs without installing anything. You just need a working `python3-libusb` installation.
 All you need is the `PyHT6022` directory in the directory where your Python program is located (e.g. in `examples`).
-This means: download this repo (as `https://github.com/Ho-Ro/Hantek6022API/archive/refs/heads/main.zip`
-or with `git clone https://github.com/Ho-Ro/Hantek6022API.git`), go to `examples` and try e.g. `python3 get_serial_number.py`.
+This means:
+
+- download this repo (as `https://github.com/Ho-Ro/Hantek6022API/archive/refs/heads/main.zip`)
+- or execute `git clone https://github.com/Ho-Ro/Hantek6022API.git`
+- go to `examples`
+- try e.g. `python3 get_serial_number.py`.
 
 
 ## Developer Info
@@ -61,8 +65,8 @@ to your udev rules, via
 After you've done this, the scope should automatically come up with the correct permissions to be accessed
 without being root user.
 
-The following instructions are tested with Debian stable versions *stretch*, *buster* and *bullseye*
-and are executed also automatically by GitHub under Ubuntu (*2004*) after each push to this repo - have a look
+The following instructions are tested with Debian stable versions *stretch*, *buster*, *bullseye*, and *bookworm*
+and are executed also automatically by GitHub under Ubuntu (*2204*) after each push to this repo - have a look
 at the [GitHub Action](https://github.com/Ho-Ro/Hantek6022API/actions/workflows/build_check.yml).
 On each successful run a Debian package is available under *Artifacts*.
 
@@ -277,36 +281,61 @@ The 256 x downsampling option increases the SNR and effective resolution (8bit -
 and allows very long time recording. The program uses the offset and gain calibration from EEPROM.
 It writes the captured data into stdout or an outfile and calculates DC, AC and RMS of the data.
 
-    usage: capture_6022.py [-h] [-d [DOWNSAMPLE]] [-g] [-o OUTFILE] [-r RATE] [-t TIME] [-x CH1]
-                        [-y CH2]
+```
+usage: capture_6022.py [-h] [-d [DOWNSAMPLE]] [-g] [-o OUTFILE] [-r RATE] [-t TIME] [-x CH1] [-y CH2]
 
-    optional arguments:
-    -h, --help            show this help message and exit
-    -d [DOWNSAMPLE], --downsample [DOWNSAMPLE]
-                            downsample 256 x DOWNSAMPLE
-    -g, --german          use comma as decimal separator
-    -o OUTFILE, --outfile OUTFILE
-                            write the data into OUTFILE
-    -r RATE, --rate RATE  sample rate in kS/s (20, 32, 50, 64, 100, 128, 200, default: 20)
-    -t TIME, --time TIME  capture time in seconds (default: 1.0)
-    -x CH1, --ch1 CH1     gain of channel 1 (1, 2, 5, 10, default: 1)
-    -y CH2, --ch2 CH2     gain of channel 2 (1, 2, 5, 10, default: 1)
+Capture data from both channels of Hantek6022
 
+options:
+  -h, --help            show this help message and exit
+  -d [DOWNSAMPLE], --downsample [DOWNSAMPLE]
+                        downsample 256 x DOWNSAMPLE
+  -g, --german          use comma as decimal separator
+  -o OUTFILE, --outfile OUTFILE
+                        write the data into OUTFILE (default: stdout)
+  -r RATE, --rate RATE  sample rate in kS/s (20, 32, 50, 64, 100, 128, 200, default: 20)
+  -t TIME, --time TIME  capture time in seconds (default: 1.0)
+  -x CH1, --ch1 CH1     gain of channel 1 (1, 2, 5, 10, default: 1)
+  -y CH2, --ch2 CH2     gain of channel 2 (1, 2, 5, 10, default: 1)
+```
 
 The program `plot_from_capture_6022.py` takes the captured data (either from stdin
 or from a file from command line argument) and presents them as seen on top of this page.
 
-    usage: plot_from_capture_6022.py [-h] [-i INFILE] [-c CHANNELS] [-s [MAX_FREQ]]
+```
+usage: plot_from_capture_6022.py [-h] [-i INFILE] [-c CHANNEL] [-s [MAX_FREQ]] [-x]
 
-    optional arguments:
-      -h, --help            show this help message and exit
-      -i INFILE, --infile INFILE
-                            read the data from INFILE
-      -c CHANNELS, --channels CHANNELS
-                            show one (CH1) or two (CH1, CH2) channels, default: 2)
-      -s [MAX_FREQ], --spectrum [MAX_FREQ]
-                            display the spectrum of the samples, optional up to MAX_FREQ
+Plot output of capture_6022.py over time
 
+options:
+  -h, --help            show this help message and exit
+  -i INFILE, --infile INFILE
+                        read the data from INFILE (default: stdin)
+  -c CHANNEL, --channel CHANNEL
+                        show only CH1 or CH2, default: show both)
+  -s [MAX_FREQ], --spectrum [MAX_FREQ]
+                        display the spectrum of the samples, optional up to MAX_FREQ
+  -x, --xkcd            plot in XKCD style :)
+```
+
+The program `fft_from_capture_6022.py` takes the captured data (either from stdin
+or from a file from command line argument) and shows the spectrum.
+
+```
+usage: fft_from_capture_6022.py [-h] [-i INFILE] [-f | -n] [-x]
+
+Plot FFT of output from capture_6022.py, use hann windowing as default
+
+options:
+  -h, --help            show this help message and exit
+  -i INFILE, --infile INFILE
+                        read the data from INFILE, (default: stdin)
+  -f, --flat_top        use flat top window
+  -n, --no_window       use no window
+  -x, --xkcd            plot in XKCD style :)
+```
+
+![fft from capture](examples/fft_from_capture.png)
 
 ## Other neat things you can do
 
