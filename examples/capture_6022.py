@@ -178,7 +178,7 @@ def pcb( ch1_data, ch2_data ):
             pcb.av1 /= downsample
             pcb.av2 /= downsample
             if pcb.timestep < sample_time:
-                line = "{:>10.6f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, pcb.av1, pcb.av2 )
+                line = f"{pcb.timestep:>10.6f}, {pcb.av1:>10.5f}, {pcb.av2:>10.5f}\n"
                 if german:
                     line=line.replace( ',', ';' ).replace( '.', ',' )
                 outfile.write( line )
@@ -187,7 +187,7 @@ def pcb( ch1_data, ch2_data ):
     else: # write out every sample
         for ch1_value, ch2_value in zip( ch1_scaled, ch2_scaled ): # merge CH1 & CH2
             if pcb.timestep < sample_time:
-                line = "{:>10.6f}, {:>10.5f}, {:>10.5f}\n".format( pcb.timestep, ch1_value, ch2_value )
+                line = f"{pcb.timestep:>10.6f}, {ch1_value:>10.5f}, {ch2_value:>10.5f}\n"
                 if german:
                     line=line.replace( ',', ';' ).replace( '.', ',' )
                 outfile.write( line )
@@ -227,7 +227,7 @@ scope.close_handle()
 
 if downsample: # calculate the effective sample rate
     sample_rate = sample_rate / 256 / downsample
-line = "\rCaptured data for {} second(s) @ {} S/s\n".format( sample_time, sample_rate)
+line = f"\rCaptured data for {sample_time} second(s) @ {sample_rate} S/s\n"
 if german:
     line=line.replace( ',', ';' ).replace( '.', ',' )
 sys.stderr.write( line )
@@ -245,11 +245,11 @@ ac2 = math.sqrt( rms2 - dc2 * dc2 )
 rms1 = math.sqrt( rms1 )
 rms2 = math.sqrt( rms2 )
 
-line = "CH1: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc1, ac1, rms1 )
+line = f"CH1: DC = {dc1:8.4f} V, AC = {ac1:8.4f} V, RMS = {rms1:8.4f} V\n"
 if german:
     line=line.replace( ',', ';' ).replace( '.', ',' )
 sys.stderr.write( line )
-line = "CH2: DC = {:8.4f} V, AC = {:8.4f} V, RMS = {:8.4f} V\n".format( dc2, ac2, rms2 )
+line = f"CH2: DC = {dc2:8.4f} V, AC = {ac2:8.4f} V, RMS = {rms2:8.4f} V\n"
 if german:
     line=line.replace( ',', ';' ).replace( '.', ',' )
 sys.stderr.write( line )

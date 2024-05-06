@@ -551,7 +551,7 @@ class Oscilloscope(object):
         if self.num_channels == 2:
             chdata = data[::2], data[1::2]
         else:
-            chdata = data, ''
+            chdata = data, b''
         if raw:
             return chdata
         else:
@@ -799,10 +799,12 @@ class Oscilloscope(object):
         :param rate_index: The rate_index. These are the keys for the SAMPLE_RATES dict for the Oscilloscope object.
                            Common rate_index values and actual sample rate per channel:
                            102 <->  20 kS/s
+                           103 <->  32 kS/s
                            104 <->  40 kS/s
                            105 <->  50 kS/s
                            106 <->  64 kS/s
                            110 <-> 100 kS/s
+                           113 <-> 128 kS/s
                            120 <-> 200 kS/s
                            140 <-> 400 kS/s
                            150 <-> 500 kS/s
