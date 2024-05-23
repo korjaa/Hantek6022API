@@ -1,3 +1,4 @@
+2024-05-23: new tool upload_firmware_6022.py (upload to different VID:PID) [c85792d]
 2024-05-06: make scopevis.py example program really useful [ea05828]
 2024-05-03: upversion 2.10.8; update examples and doc [ac44d00]
 2024-05-02: more documentation for example programs [fb8e531]

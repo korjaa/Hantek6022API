@@ -13,6 +13,7 @@ __version__ = '2.10.8'
 
 from setuptools import setup
 import os
+import sys
 import platform
 
 
@@ -29,10 +30,12 @@ data_files=[
 ]
 
 # add linux specific config files and binaries
+linux_udev_rules = 'udev/60-hantek6022api.rules'
+linux_udev_path = '/etc/udev/rules.d/'
 if platform.system() == 'Linux':
-    data_files.append( ( '/etc/udev/rules.d/', [ 'udev/60-hantek6022api.rules' ] ) )
-    data_files.append( ( 'bin/', [ 'fx2upload/fx2upload' ] ) )
-
+    if os.getuid() == 0:
+        data_files.append( ( linux_udev_path, [ linux_udev_rules ] ) )
+        data_files.append( ( 'bin/', [ 'fx2upload/fx2upload' ] ) )
 
 setup(
     name='hantek6022api',
@@ -63,8 +66,13 @@ as well as an improved FW for Hantek 6022 USB Oscilloscopes''',
         os.path.join( 'examples', 'fft_from_capture_6022.py' ),
         os.path.join( 'examples', 'set_cal_out_freq_6022.py' ),
         os.path.join( 'examples', 'upload_6022_firmware_from_hex.py' ),
-        os.path.join( 'examples', 'upload_6022_firmware.py' ),
+        os.path.join( 'examples', 'upload_firmware_6022.py' ),
     ],
     # generic and linux 'data_files' from top
     data_files = data_files
 )
+
+if platform.system() == 'Linux' and os.getuid() != 0:
+    if 'build' in sys.argv or 'install' in sys.argv:
+        print( f'building / installing as user!' )
+        print( f'to enable access to the device copy (as root) the file "{linux_udev_rules}" into "{linux_udev_path}".', file = sys.stderr )
