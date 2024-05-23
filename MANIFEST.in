@@ -9,10 +9,9 @@ include examples/calibrate_6022.py
 include examples/capture_6022.py
 include examples/plot_from_capture_6022.py
 include examples/fft_from_capture_6022.py
-include examples/fft_ft_from_capture_6022.py
 include examples/set_cal_out_freq_6022.py
 include examples/upload_6022_firmware_from_hex.py
-include examples/upload_6022_firmware.py
+include examples/upload_firmware_6022.py
 
 # linux binaries
 include fx2upload/fx2upload
