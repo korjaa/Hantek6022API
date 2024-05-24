@@ -91,9 +91,9 @@ usage: upload_6022_firmware_from_hex.py HEXFILE
 Uploads firmware from intel hex file to device
 
 ### `upload_6022_firmware.py`
-Uploads standard firmware to device - deprecated, will be replaced by ´upload_firmware_6022.py´
+Uploads standard firmware to device - deprecated, will be replaced by `upload_firmware_6022.py`
 
-### ´upload_firmware_6022.py´
+### `upload_firmware_6022.py`
 ```
 usage: upload_firmware_6022.py [-h] [-V VID] [-P PID] [--be | --bl]
 
@@ -101,12 +101,28 @@ Upload firmware to Hantek6022 devices with different VID:PID
 
 options:
   -h, --help         show this help message and exit
-  -V VID, --VID VID
-  -P PID, --PID PID
-  --be, --6022be
-  --bl, --6022bl
+  -V VID, --VID VID  set vendor id (hex)
+  -P PID, --PID PID  set product id (hex)
+  --be, --6022be     use DSO-6022BE firmware
+  --bl, --6022bl     use DSO-6022BL firmware
+```
+
+This tool can be used to upload the firmware to devices with
+[damaged EEPROM content](https://github.com/Ho-Ro/Hantek6022API/discussions/28).
+These devices enumerate as Cypress development kit with VID:PID 04b4:8613.
+
+```
+$ lsusb | grep Cypress
+Bus 002 Device 021: ID 04b4:8613 Cypress Semiconductor Corp. CY7C68013 EZ-USB FX2 USB 2.0 Development Kit
+
+$ ./upload_firmware_6022.py --VID 04b4 --PID 8613 --6022be
+upload DSO-6022BE firmware
+FW version 0x210
+Serial number CF81BA1F3532
+
+$ lsusb | grep Hantek
+Bus 002 Device 022: ID 04b5:6022 ROHM LSI Systems USA, LLC Hantek DSO-6022BE
 ```
 
 ### `reset_eeprom_6022.py`
 **Warning:** this program will delete all calibration values from EEPROM - use with care!
-

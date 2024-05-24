@@ -49,9 +49,10 @@ This means:
 
 - download this repo (as `https://github.com/Ho-Ro/Hantek6022API/archive/refs/heads/main.zip`)
 - or execute `git clone https://github.com/Ho-Ro/Hantek6022API.git`
+- to enable user access to the device copy (as root) the file `udev/60-hantek6022api.rules`
+into `/etc/udev/rules.d`
 - go to `examples`
-- try e.g. `python3 get_serial_number.py`.
-
+- try e.g. `python3 get_serial_number.py`
 
 ## Developer Info
 
