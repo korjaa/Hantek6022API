@@ -186,7 +186,7 @@ section is therefore targeted to Linux (and MacOS) users as well as Windows user
 
 ## Create calibration values for OpenHantek
 
-<img alt="Uncalibrated scope data" width="50%" src="HT6022BE_uncalibrated.png">
+<img alt="Uncalibrated scope data" width="50%" src="doc/HT6022BE_uncalibrated.png">
 
 As you can see in the trace above the scope has a quite big zero point error (the measured real signal
 switches between 0.0 V and 2.0 V) - also the gain is defined by resistors with 5% tolerance
