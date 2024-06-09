@@ -2,7 +2,7 @@ __author__ = 'Robert Cope'
 
 from unittest import TestCase
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 from PyHT6022.HantekFirmware import stock_firmware, mod_firmware_01
 
 
@@ -12,7 +12,7 @@ from PyHT6022.HantekFirmware import stock_firmware, mod_firmware_01
 class BasicTests(TestCase):
     def test_find_device(self):
         print ("Testing finding device and flashing stock firmware.")
-        scope = Oscilloscope()
+        scope = Hantek6022B()
         assert scope.setup()
         assert scope.open_handle()
         assert scope.flash_firmware()
