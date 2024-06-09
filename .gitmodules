@@ -1,5 +1,0 @@
-[submodule "fx2lib_update"]
-	path = Firmware/fx2lib
-	url = https://github.com/Ho-Ro/fx2lib
-[fx2lib]
-	branch = master
