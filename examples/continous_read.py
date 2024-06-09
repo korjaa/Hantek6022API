@@ -2,7 +2,7 @@
 
 __author__ = 'rcope'
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 import matplotlib.pyplot as plt
 import sys
 import time
@@ -35,7 +35,7 @@ sample_rate_index = 24
 voltage_range = 0x01
 data_points = 3 * 1024
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     sys.exit()

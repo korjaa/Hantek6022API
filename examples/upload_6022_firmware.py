@@ -6,9 +6,9 @@ either firmare-DSO6022BE or firmware-DSO6022BL or firmware-DSO6021
 depending on VID/PID
 """
 import sys
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     sys.exit( -1 )

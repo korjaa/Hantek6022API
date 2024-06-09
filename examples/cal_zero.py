@@ -8,7 +8,7 @@ Program to calibrate offset of 6022BE/BL
 2.) Write offset values into eeprom
 '''
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 import sys
 import time
 import binascii
@@ -51,7 +51,7 @@ def read_avg( voltage_range, sample_rate=110, repeat = 1, samples = 12 * 1024 ):
 
 print("Setting up scope...")
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 scope.open_handle()
 

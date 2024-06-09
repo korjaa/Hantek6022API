@@ -7,8 +7,8 @@ depending on device VID/PID
 or firmware-DSO6022BE or firmware-DSO6022BL with provided VID:PID
 """
 import sys
-from PyHT6022.LibUsbScope import Oscilloscope
-from PyHT6022.Firmware import dso6022be_firmware, dso6022bl_firmware
+from Hantek6022B import Hantek6022B
+from Hantek6022B.Firmware import dso6022be_firmware, dso6022bl_firmware
 import argparse
 
 ap = argparse.ArgumentParser(
@@ -23,9 +23,9 @@ fw.add_argument( '--bl', '--6022bl', action = 'store_true', help = 'use DSO-6022
 options = ap.parse_args()
 
 if not options.VID and not options.PID:
-    scope = Oscilloscope()
+    scope = Hantek6022B()
 elif options.VID and options.PID and ( options.be or options.bl ):
-    scope = Oscilloscope(options.VID, options.PID)
+    scope = Hantek6022B(options.VID, options.PID)
 else:
     print( '--VID and --PID and one of --be or --bl must be provided')
     sys.exit()

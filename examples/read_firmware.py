@@ -2,9 +2,10 @@
 
 __author__ = 'Jochen Hoenicke'
 
-from PyHT6022.LibUsbScope import Oscilloscope
+import sys
+from Hantek6022B import Hantek6022B
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     sys.exit( -1 )

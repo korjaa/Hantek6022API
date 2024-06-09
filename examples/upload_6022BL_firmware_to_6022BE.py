@@ -4,13 +4,13 @@
 # this device has the same HW as DSO6022, but different PID=0x2020
 # it will become a DSO6022 when the FW is loaded
 import sys
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 
 firmware = "dso6022bl-firmware.hex"
 VID=0x04b4
 PID=0x6022
 
-scope = Oscilloscope( VID, PID )
+scope = Hantek6022B( VID, PID )
 scope.setup()
 if not scope.open_handle():
     sys.exit( -1 )

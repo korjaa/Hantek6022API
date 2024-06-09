@@ -2,7 +2,7 @@
 
 __author__ = 'Robert Cope'
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 import pylab
 import time
 import sys
@@ -52,7 +52,7 @@ data_points = options.blocks * 1024
 skip = 2 * 1024
 data_points += skip
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 scope.open_handle()
 

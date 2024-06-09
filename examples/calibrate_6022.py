@@ -18,7 +18,7 @@ Configure with command line arguments:
 '''
 
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 
 import sys
 import time
@@ -88,7 +88,7 @@ measure_gain = args["measure_gain"]
 
 print("Setting up scope...")
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     sys.exit( -1 )

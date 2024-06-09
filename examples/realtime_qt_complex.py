@@ -13,7 +13,7 @@ import sys
 import time
 from collections import deque
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 
 import pylab
 from threading import Thread, RLock
@@ -39,7 +39,7 @@ block_splits_count = 10 # to make finer grained statistics
 max_blocks_kept   = 30 # number of blocks to keep in memory and in plots
 alternative       = 1 # choose ISO 3072 bytes per 125 us
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 scope.open_handle()
 if (not scope.is_device_firmware_present):

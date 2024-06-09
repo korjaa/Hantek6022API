@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 import sys
 
 usage = 'usage: set_cal_out_freq_6022.py FREQ\nwith 32 <= FREQ <= 100000'
@@ -16,7 +16,7 @@ if cal_freq < 32 or cal_freq > 100000:
     print( usage, file=sys.stderr )
     sys.exit( -1 )
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 
 if not scope.open_handle():

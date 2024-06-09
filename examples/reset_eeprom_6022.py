@@ -25,7 +25,7 @@ from the EEPROM into internal storage. The table shows the data format for a C0 
 
 
 import sys
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 
 
 def hexdump( txt, bytes ):
@@ -45,7 +45,7 @@ if yes_no == '' or yes_no[0].lower() != 'y':
     sys.exit()
 
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     print( 'Error opening the scope device' )

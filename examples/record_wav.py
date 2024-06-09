@@ -12,7 +12,7 @@ import sys
 import time
 from collections import deque
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 
 voltagerange = 10       # 1 (5V), 2 (2.6V), 5 or 10
 samplerate = 24         # sample rate in MHz or in 10khz
@@ -21,7 +21,7 @@ numseconds = 8          # number of seconds to sample
 blocksize = 6*1024      # should be divisible by 6*1024
 alternative = 1         # choose ISO 3072 bytes per 125 us
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     sys.exit()

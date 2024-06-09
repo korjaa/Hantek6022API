@@ -3,10 +3,10 @@
 __author__ = 'Robert Cope'
 
 import sys
-from PyHT6022.LibUsbScope import Oscilloscope
-from PyHT6022.Firmware import firmware as Firmware
+from Hantek6022B import Hantek6022B
+from Hantek6022B.Firmware import firmware as Firmware
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     sys.exit( -1 )

@@ -2,8 +2,8 @@
 
 __author__ = 'Robert Cope'
 
-from PyHT6022.LibUsbScope import Oscilloscope
-from PyHT6022.Firmware import mod_firmware_01
+from Hantek6022B.Firmware import mod_firmware_01
+from Hantek6022B import Hantek6022B
 import time
 
 iterations = 50
@@ -21,7 +21,7 @@ voltage_range = 0x01
 
 time_fxn = time.time
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 scope.open_handle()
 

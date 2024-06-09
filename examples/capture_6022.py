@@ -18,7 +18,7 @@ optional arguments:
   -y CH2, --ch2 CH2     gain of channel 2 (1, 2, 5, 10, default: 1)
 '''
 
-from PyHT6022.LibUsbScope import Oscilloscope
+from Hantek6022B import Hantek6022B
 import math
 import time
 import argparse
@@ -90,7 +90,7 @@ if argerror:
 ############
 
 
-scope = Oscilloscope()
+scope = Hantek6022B()
 scope.setup()
 if not scope.open_handle():
     sys.exit( -1 )
