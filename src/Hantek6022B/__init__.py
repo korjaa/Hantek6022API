@@ -6,6 +6,8 @@ import os
 import sys
 import threading
 import time
+from typing import Literal
+
 import usb1
 
 import numpy as np
@@ -33,13 +35,9 @@ class Hantek6022B(object):
     SET_SAMPLE_RATE_VALUE = 0x00
     SET_SAMPLE_RATE_INDEX = 0x00
 
-    SET_CH1_VR_REQUEST = 0xe0
-    SET_CH1_VR_VALUE = 0x00
-    SET_CH1_VR_INDEX = 0x00
-
-    SET_CH2_VR_REQUEST = 0xe1
-    SET_CH2_VR_VALUE = 0x00
-    SET_CH2_VR_INDEX = 0x00
+    SET_VR_REQUEST = [0xe0, 0xe1]
+    SET_VR_VALUE = 0x00
+    SET_VR_INDEX = 0x00
 
     TRIGGER_REQUEST = 0xe3
     TRIGGER_VALUE = 0x00
@@ -138,6 +136,7 @@ class Hantek6022B(object):
         self.offset2 = { 1:0, 2:0, 5:0, 10:0 }
         self.gain1 = { 1:1.01, 2:1.01, 5:0.99, 10:1.0 }
         self.gain2 = { 1:1.01, 2:1.01, 5:0.99, 10:1.0 }
+        self.voltage_range = [None, None]
 
 
     def setup(self):
@@ -525,80 +524,37 @@ class Hantek6022B(object):
                                                         b'\x00', timeout=timeout)
         return bytes_written == 1
 
-
-    def read_data(self, data_size=0x400, raw=False, timeout=0):
+    def read(self, points: int):
         """
         Read both channel's ADC data from the device. No trigger support, you need to do this in software.
-        :param data_size: (OPTIONAL) The number of data points for each channel to retrieve. Default: 0x400 points.
-        :param raw: (OPTIONAL) Return the raw bytestrings from the scope. Default: Off
-        :param timeout: (OPTIONAL) The timeout for each bulk transfer from the scope. Default: 0 (No timeout)
-        :return: If raw, two bytestrings are returned, the first for CH1, the second for CH2. If raw is off, two
-                 lists are returned (by iterating over the bytestrings and converting to ordinals). The lists contain
-                 the ADC value measured at that time, which should be between 0 - 255.
+        :param points: The number of data points for each channel to retrieve.
+        :return: Two numpy.ndarray of type numpy.uint8 are returned.
 
                  If you'd like nicely scaled data, just dump the return lists into the scale_read_data method with
                  your current voltage range setting.
 
                  This method may assert or raise various libusb errors if something went wrong.
         """
-        data_size *= self.num_channels
         if not self.device_handle:
             assert self.open_handle()
+
+        byte_count = int(round(points * self.num_channels / 1024)) * 1024
 
         self.start_capture()
-        data = self.device_handle.bulkRead(0x86, data_size, timeout=timeout)
+        data = self.device_handle.bulkRead(0x86, byte_count, timeout=0)
         self.stop_capture()
-        if self.num_channels == 2:
-            chdata = data[::2], data[1::2]
+
+        if self.num_channels == 1:
+            ch1_result, ch2_result = np.frombuffer(data, dtype=np.uint8), None
+        elif self.num_channels == 2:
+            ch1_result, ch2_result = np.frombuffer(data, dtype=np.uint8).reshape(-1, 2).T
         else:
-            chdata = data, b''
-        if raw:
-            return chdata
-        else:
-            return array.array('B', chdata[0]), array.array('B', chdata[1])
+            raise NotImplementedError
 
+        ch1_result = self.scale_read_data(ch=0, data=ch1_result)
+        ch2_result = self.scale_read_data(ch=1, data=ch2_result)
 
-    def build_data_reader(self, raw=False):
-        """
-        Build a (slightly) more optimized reader closure, for (slightly) better performance.
-        :param raw: (OPTIONAL) Return the raw bytestrings from the scope. Default: Off
-        :return: A fast_read_data function, which behaves much like the read_data function. The fast_read_data
-                 function returned takes two parameters:
-                 :param data_size: Number of data points to return (1 point <-> 1 byte).
-                 :param timeout: (OPTIONAL) The timeout for each bulk transfer from the scope. Default: 0 (No timeout)
-                 :return:  If raw, two bytestrings are returned, the first for CH1, the second for CH2. If raw is off,
-                 two lists are returned (by iterating over the bytestrings and converting to ordinals).
-                 The lists contain the ADC value measured at that time, which should be between 0 - 255.
-
-        This method and the closure may assert or raise various libusb errors if something went/goes wrong.
-        """
-        if not self.device_handle:
-            assert self.open_handle()
-        scope_bulk_read = self.device_handle.bulkRead
-        array_builder = array.array
-        if self.num_channels == 1 and raw:
-            def fast_read_data(data_size, timeout=0):
-                data = scope_bulk_read(0x86, data_size, timeout)
-                return data, ''
-        elif self.num_channels == 1 and not raw:
-            def fast_read_data(data_size, timeout=0):
-                data = scope_bulk_read(0x86, data_size, timeout)
-                return array_builder('B', data), array_builder('B', '')
-        elif self.num_channels == 2 and raw:
-            def fast_read_data(data_size, timeout=0):
-                data_size <<= 0x1
-                data = scope_bulk_read(0x86, data_size, timeout)
-                return data[::2], data[1::2]
-        elif self.num_channels == 2 and not raw:
-            def fast_read_data(data_size, timeout=0):
-                data_size <<= 0x1
-                data = scope_bulk_read(0x86, data_size, timeout)
-                return array_builder('B', data[::2]), array_builder('B', data[1::2])
-        else:
-            # Should never be here.
-            assert False
-        return fast_read_data
-
+        return ch1_result, ch2_result
 
     def set_interface(self, alt):
         """
@@ -664,49 +620,34 @@ class Hantek6022B(object):
             transfer.submit()
         return shutdown_event
 
-
-    def read_async_bulk(self, callback, packets, outstanding_transfers, raw):
+    def read_async_bulk(self, callback, packets, outstanding_transfers):
         """
         Internal function to read from bulk channel.  External
         users should call read_async.
         """
-        array_builder = array.array
         shutdown_event = threading.Event()
-        shutdown_is_set = shutdown_event.is_set
-        if self.num_channels == 1 and raw:
-            def transfer_callback(bulk_transfer):
-                data = bulk_transfer.getBuffer()[0:bulk_transfer.getActualLength()]
-                callback(data, '')
-                if not shutdown_is_set():
-                    bulk_transfer.submit()
-        elif self.num_channels == 1 and not raw:
-            def transfer_callback(bulk_transfer):
-                data = bulk_transfer.getBuffer()[0:bulk_transfer.getActualLength()]
-                callback(array_builder('B', data), [])
-                if not shutdown_is_set():
-                    bulk_transfer.submit()
-        elif self.num_channels == 2 and raw:
-            def transfer_callback(bulk_transfer):
-                data = bulk_transfer.getBuffer()[0:bulk_transfer.getActualLength()]
-                callback(data[::2], data[1::2])
-                if not shutdown_is_set():
-                    bulk_transfer.submit()
-        elif self.num_channels == 2 and not raw:
-            def transfer_callback(bulk_transfer):
-                data = bulk_transfer.getBuffer()[0:bulk_transfer.getActualLength()]
-                callback(array_builder('B', data[::2]), array_builder('B', data[1::2]))
-                if not shutdown_is_set():
-                    bulk_transfer.submit()
+
+        if self.num_channels == 1:
+            _data_reshaper = lambda data: [np.frombuffer(data, dtype=np.uint8), None]
+        elif self.num_channels == 2:
+            _data_reshaper = lambda data: np.frombuffer(data, dtype=np.uint8).reshape(-1, 2).T
         else:
-            assert False
+            raise NotImplementedError
+
+        def _transfer_callback(bulk_transfer):
+            data = bulk_transfer.getBuffer()[0:bulk_transfer.getActualLength()]
+            callback(*_data_reshaper(data))
+            if not shutdown_event.is_set():
+                bulk_transfer.submit()
+
         for _ in range(outstanding_transfers):
             transfer = self.device_handle.getTransfer(iso_packets=packets)
-            transfer.setBulk(0x86, (packets*self.packetsize), callback=transfer_callback)
+            transfer.setBulk(0x86, (packets*self.packetsize), callback=_transfer_callback)
             transfer.submit()
+
         return shutdown_event
 
-
-    def read_async(self, callback, data_size, outstanding_transfers=3, raw=False):
+    def read_async(self, callback, data_size, outstanding_transfers=3):
         """
         Read both channel's ADC data from the device asynchronously. No trigger support, you need to do this in software.
         The function returns immediately but the data is then sent asynchronously to the callback function whenever it
@@ -723,74 +664,23 @@ class Hantek6022B(object):
         # data_size to packets
         packets = (data_size + self.packetsize-1)//self.packetsize
         if self.is_iso:
-            return self.read_async_iso(callback, packets, outstanding_transfers, raw)
+            return self.read_async_iso(callback, packets, outstanding_transfers, False)
         else:
-            return self.read_async_bulk(callback, packets, outstanding_transfers, raw)
+            return self.read_async_bulk(callback, packets, outstanding_transfers)
 
-
-    def scale_read_data( self, read_data, voltage_range=1, channel=1, probe=1, offset=0 ):
+    def scale_read_data(self, ch: Literal[0, 1], data: np.ndarray):
         """
         Convenience function for converting data read from the scope to nicely scaled voltages.
         Apply the calibration values that are stored in EEPROM (call "get_calibration_values()" before)
-        :param list read_data: The list of points returned from the read_data functions.
-        :param int voltage_range: The voltage range current set for the channel.
-        :param int channel: 1 = CH1, 2 = CH2.
-        :param int probe_multiplier: (OPTIONAL) An additonal multiplictive factor for changing the probe gain.
-                                 Default: 1
-        :param int offset: (OPTIONAL) An additional additive value to compensate the ADC offset
-        :return: A list of correctly scaled voltages for the data.
+        :param int ch: Channel index.
+        :param list data: The list of points returned from the read_data functions.
+        :return: numpy.ndarray.
         """
-        if channel == 1:
-                mul = probe * self.gain1[ voltage_range ]
-                off = offset + self.offset1[ voltage_range ]
-        else:
-                mul = probe * self.gain2[ voltage_range ]
-                off = offset + self.offset2[ voltage_range ]
-
-        scale_factor = ( 5.12 * mul ) / ( voltage_range << 7 )
-        data = (np.array(read_data, dtype=float) - 128 - off) * scale_factor
-        return data.tolist()
-
-
-    def voltage_to_adc( self, voltage, voltage_range=1, channel=1, probe=1, offset=0 ):
-        """
-        Convenience function for analog voltages into the ADC count the scope would see.
-        :param float voltage: The analog voltage to convert.
-        :param int voltage_range: The voltage range current set for the channel.
-        :param int channel: 1 = CH1, 2 = CH2.
-        :param int probe: (OPTIONAL) An additonal multiplictive factor for changing the probe gain.
-                                 Default: 1
-        :param int offset: (OPTIONAL) An additional additive value to simulate the ADC offset
-        :return: The corresponding ADC count.
-        """
-        if channel == 1:
-                mul = probe * self.gain1[ voltage_range ]
-                off = offset + self.offset1[ voltage_range ]
-        else:
-                mul = probe * self.gain2[ voltage_range ]
-                off = offset + self.offset2[ voltage_range ]
-        return voltage * ( voltage_range << 7 ) / ( 5.12 * mul ) + 128 + off
-
-
-    def adc_to_voltage( self, adc_count, voltage_range=1, channel=1, probe=1, offset=0 ):
-        """
-        Convenience function for converting an ADC count from the scope to a nicely scaled voltage.
-        :param int adc_count: The scope ADC count.
-        :param int voltage_range: The voltage range current set for the channel.
-        :param int channel: 1 = CH1, 2 = CH2.
-        :param int probe: (OPTIONAL) An additonal multiplictive factor for changing the probe gain.
-                                 Default: 1
-        :param int offset: (OPTIONAL) An additional additive value to correct the ADC offset, default: 0
-        :return: The analog voltage corresponding to that ADC count.
-        """
-        if channel == 1:
-                mul = probe * self.gain1[ voltage_range ]
-                off = offset + self.offset1[ voltage_range ]
-        else:
-                mul = probe * self.gain2[ voltage_range ]
-                off = offset + self.offset2[ voltage_range ]
-        return ( adc_count - 128 - off ) * ( 5.12 * mul ) / ( voltage_range << 7 )
-
+        vrange = self.voltage_range[ch]
+        result = data.astype(float)
+        result -= 128 + self.offset1[vrange]
+        result *= 5.12 * self.gain1[vrange] / (vrange << 7)
+        return result
 
     def set_sample_rate(self, rate_index, timeout=0):
         """
@@ -872,10 +762,10 @@ class Hantek6022B(object):
         self.num_channels = nchannels
         return True
 
-
-    def set_ch1_voltage_range(self, range_index, timeout=0):
+    def set_voltage_range(self, ch: Literal[0, 1], range_index: int) -> None:
         """
         Set the voltage scaling factor at the scope for channel 1 (CH1).
+        :param ch: Channel index.
         :param range_index: A numerical constant, which determines the devices range by the following formula:
                             range := +/- 5.0 V / (range_indeX).
 
@@ -885,43 +775,17 @@ class Hantek6022B(object):
                             This same range_index is given to the scale_read_data method to get nicely scaled
                             data in voltages returned from the scope.
 
-        :param timeout: (OPTIONAL).
-        :return: True if successful. This method may assert or raise various libusb errors if something went wrong.
+        :return: None, This method may assert or raise various libusb errors if something went wrong.
         """
         if not self.device_handle:
             assert self.open_handle()
-        bytes_written = self.device_handle.controlWrite(0x40, self.SET_CH1_VR_REQUEST,
-                                                        self.SET_CH1_VR_VALUE,
-                                                        self.SET_CH1_VR_INDEX,
-                                                        pack("B", range_index), timeout=timeout)
+
+        bytes_written = self.device_handle.controlWrite(
+            0x40, self.SET_VR_REQUEST[ch], self.SET_VR_VALUE, self.SET_VR_INDEX,
+            pack("B", range_index),
+            timeout=0)
         assert bytes_written == 0x01
-        return True
-
-
-    def set_ch2_voltage_range(self, range_index, timeout=0):
-        """
-        Set the voltage scaling factor at the scope for channel 1 (CH1).
-        :param range_index: A numerical constant, which determines the devices range by the following formula:
-                            range := +/- 5.0 V / (range_indeX).
-
-                            The stock software only typically uses the range indicies 0x01, 0x02, 0x05, and 0x0a,
-                            but others, such as 0x08 and 0x0b seem to work correctly.
-
-                            This same range_index is given to the scale_read_data method to get nicely scaled
-                            data in voltages returned from the scope.
-
-        :param timeout: (OPTIONAL).
-        :return: True if successful. This method may assert or raise various libusb errors if something went wrong.
-        """
-        if not self.device_handle:
-            assert self.open_handle()
-        bytes_written = self.device_handle.controlWrite(0x40, self.SET_CH2_VR_REQUEST,
-                                                        self.SET_CH2_VR_VALUE,
-                                                        self.SET_CH2_VR_INDEX,
-                                                        pack("B", range_index), timeout=timeout)
-        assert bytes_written == 0x01
-        return True
-
+        self.voltage_range[ch] = range_index
 
     def set_calibration_frequency(self, cal_freq, timeout=0):
         """
