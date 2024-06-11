@@ -217,22 +217,27 @@ class Hantek6022B(object):
         Open a device handle for the scope. This needs to occur before sending any commands.
         :return: True if successful, False otherwise. May raise various libusb exceptions on fault.
         """
-        if self.device_handle:
-            return True
-        if not self.device and not self.setup():
-            return False
-        self.device_handle = self.device.open()
-        if os.name == 'posix' and self.device_handle.kernelDriverActive(0):
-            self.device_handle.detachKernelDriver(0)
         try:
-            self.device_handle.claimInterface(0)
-        except Exception as e:
-            print( e, file=sys.stderr )
-            return False
-        if self.is_device_firmware_present:
-            self.set_num_channels(2)
-            self.set_interface(0)
-        return True
+            if self.device_handle:
+                return True
+            if not self.device and not self.setup():
+                return False
+            self.device_handle = self.device.open()
+            if os.name == 'posix' and self.device_handle.kernelDriverActive(0):
+                self.device_handle.detachKernelDriver(0)
+            try:
+                self.device_handle.claimInterface(0)
+            except Exception as e:
+                print( e, file=sys.stderr )
+                return False
+            if self.is_device_firmware_present:
+                self.set_num_channels(2)
+                self.set_interface(0)
+            return True
+        finally:
+            if not self.is_device_firmware_present:
+                self.flash_firmware()
+            self.get_calibration_values()
 
 
     def close_handle(self, release_interface=False):
