@@ -544,6 +544,7 @@ class Hantek6022B(object):
             assert self.open_handle()
 
         byte_count = int(round(points * self.num_channels / 1024)) * 1024
+        byte_count = max(byte_count, 1024)
 
         self.start_capture()
         data = self.device_handle.bulkRead(0x86, byte_count, timeout=0)
