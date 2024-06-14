@@ -552,13 +552,14 @@ class Hantek6022B(object):
 
         if self.num_channels == 1:
             ch1_result, ch2_result = np.frombuffer(data, dtype=np.uint8), None
+            ch1_result = self.scale_read_data(ch=0, data=ch1_result)
         elif self.num_channels == 2:
             ch1_result, ch2_result = np.frombuffer(data, dtype=np.uint8).reshape(-1, 2).T
+            ch1_result = self.scale_read_data(ch=0, data=ch1_result)
+            ch2_result = self.scale_read_data(ch=1, data=ch2_result)
         else:
             raise NotImplementedError
 
-        ch1_result = self.scale_read_data(ch=0, data=ch1_result)
-        ch2_result = self.scale_read_data(ch=1, data=ch2_result)
 
         return ch1_result, ch2_result
 
@@ -683,9 +684,11 @@ class Hantek6022B(object):
         :return: numpy.ndarray.
         """
         vrange = self.voltage_range[ch]
+        offset = self.offset1[vrange] if ch == 0 else self.offset2[vrange]
+        gain = self.gain1[vrange] if ch == 0 else self.gain2[vrange]
         result = data.astype(float)
-        result -= 128 + self.offset1[vrange]
-        result *= 5.12 * self.gain1[vrange] / (vrange << 7)
+        result -= 128 + offset
+        result *= 5.12 * gain / (vrange << 7)
         return result
 
     def set_sample_rate(self, rate_index, timeout=0):
